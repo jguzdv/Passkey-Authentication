@@ -1,0 +1,13 @@
+{
+  "buildOptions": {},
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "sourceMap": true,
+    "outDir": "wwwroot/ts/",
+    "rootDir": "typescript",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

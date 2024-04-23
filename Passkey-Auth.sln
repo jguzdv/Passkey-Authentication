@@ -1,0 +1,86 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7C8780EE-0DD4-43F2-B779-0950460F43BE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JGUZDV.PasskeyAuth", "src\JGUZDV.PasskeyAuth\JGUZDV.PasskeyAuth.csproj", "{6C3F4631-61AB-42DF-9B17-40BCF505B6D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{5084A875-B072-49C9-A135-7625E7BFD89F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JGUZDV.PasskeyAuth.TestSP", "test\JGUZDV.PasskeyAuth.TestSP\JGUZDV.PasskeyAuth.TestSP.csproj", "{804C5196-6CB8-4028-9603-016C9DFBE47E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9E83B82A-B53F-4861-8A94-AC7EECBE0CDE}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ADFS", "ADFS", "{79931201-E384-4FC5-B06A-7CE3AB959365}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JGUZDV.ADFS.PasskeyAuthenticationAdapter", "src\JGUZDV.ADFS.PasskeyAuthenticationAdapter\JGUZDV.ADFS.PasskeyAuthenticationAdapter.csproj", "{6BAF5F8B-F773-4727-88AA-37253885ECC2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JGUZDV.ADFS.PasskeyHandler", "src\JGUZDV.ADFS.PasskeyHandler\JGUZDV.ADFS.PasskeyHandler.csproj", "{A186BDB9-AA31-435C-8804-3DE59646E0A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JGUZDV.Passkey.ActiveDirectory", "src\JGUZDV.Passkey.ActiveDirectory\JGUZDV.Passkey.ActiveDirectory.csproj", "{CB80C326-A563-4C70-A958-5769B7E51239}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JGUZDV.ClaimMirror", "test\JGUZDV.ClaimMirror\JGUZDV.ClaimMirror.csproj", "{862C76EF-CF3E-4EE8-BA0B-41AB620DA1ED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F1BF4B11-4885-45CB-9B42-FDA28B6A1C12}"
+	ProjectSection(SolutionItems) = preProject
+		docs\LdapSchema.md = docs\LdapSchema.md
+		docs\PasskeyHandler-SequenceDiagram.md = docs\PasskeyHandler-SequenceDiagram.md
+		docs\PasskeyHandler-SequenceDiagram.png = docs\PasskeyHandler-SequenceDiagram.png
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C3F4631-61AB-42DF-9B17-40BCF505B6D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C3F4631-61AB-42DF-9B17-40BCF505B6D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C3F4631-61AB-42DF-9B17-40BCF505B6D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C3F4631-61AB-42DF-9B17-40BCF505B6D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{804C5196-6CB8-4028-9603-016C9DFBE47E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{804C5196-6CB8-4028-9603-016C9DFBE47E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{804C5196-6CB8-4028-9603-016C9DFBE47E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{804C5196-6CB8-4028-9603-016C9DFBE47E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BAF5F8B-F773-4727-88AA-37253885ECC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BAF5F8B-F773-4727-88AA-37253885ECC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BAF5F8B-F773-4727-88AA-37253885ECC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BAF5F8B-F773-4727-88AA-37253885ECC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A186BDB9-AA31-435C-8804-3DE59646E0A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A186BDB9-AA31-435C-8804-3DE59646E0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A186BDB9-AA31-435C-8804-3DE59646E0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A186BDB9-AA31-435C-8804-3DE59646E0A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB80C326-A563-4C70-A958-5769B7E51239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB80C326-A563-4C70-A958-5769B7E51239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB80C326-A563-4C70-A958-5769B7E51239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB80C326-A563-4C70-A958-5769B7E51239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{862C76EF-CF3E-4EE8-BA0B-41AB620DA1ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{862C76EF-CF3E-4EE8-BA0B-41AB620DA1ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{862C76EF-CF3E-4EE8-BA0B-41AB620DA1ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{862C76EF-CF3E-4EE8-BA0B-41AB620DA1ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6C3F4631-61AB-42DF-9B17-40BCF505B6D5} = {7C8780EE-0DD4-43F2-B779-0950460F43BE}
+		{804C5196-6CB8-4028-9603-016C9DFBE47E} = {5084A875-B072-49C9-A135-7625E7BFD89F}
+		{79931201-E384-4FC5-B06A-7CE3AB959365} = {7C8780EE-0DD4-43F2-B779-0950460F43BE}
+		{6BAF5F8B-F773-4727-88AA-37253885ECC2} = {79931201-E384-4FC5-B06A-7CE3AB959365}
+		{A186BDB9-AA31-435C-8804-3DE59646E0A9} = {79931201-E384-4FC5-B06A-7CE3AB959365}
+		{CB80C326-A563-4C70-A958-5769B7E51239} = {7C8780EE-0DD4-43F2-B779-0950460F43BE}
+		{862C76EF-CF3E-4EE8-BA0B-41AB620DA1ED} = {5084A875-B072-49C9-A135-7625E7BFD89F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {844D7935-BA57-4897-BECF-A507D34934EF}
+		RESX_NeutralResourcesLanguage = de-DE
+		RESX_SortFileContentOnSave = True
+	EndGlobalSection
+EndGlobal

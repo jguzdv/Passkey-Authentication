@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net4.8</TargetFramework>
+		<LangVersion>11.0</LangVersion>
+
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<NeutralLanguage>en</NeutralLanguage>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>StrongName.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="Microsoft.IdentityServer">
+			<HintPath>ref\Microsoft.IdentityServer.dll</HintPath>
+		</Reference>
+		<Reference Include="Microsoft.IdentityServer.Web">
+			<HintPath>ref\Microsoft.IdentityServer.Web.dll</HintPath>
+		</Reference>
+		<Reference Include="System.DirectoryServices" />
+		<Reference Include="System.Web" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+</Project>
