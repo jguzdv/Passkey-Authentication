@@ -5,7 +5,8 @@ This solution provides two different ways to enable passkey authentication withi
 ## Prerequisites
 
 You have an ldap containing the passkey information.
-The information is saved in [ldap attributes](./docs/LdapSchema.md) as proposed by @aseigler [on Github](https://github.com/passwordless-lib/fido2-net-lib/blob/ActiveDirectory/fido2-net-lib/ActiveDirectoryStore.cs).
+The information is saved in [ldap attributes](./docs/LdapSchema.md) as proposed [here](https://github.com/passwordless-lib/fido2-net-lib/blob/ActiveDirectory/fido2-net-lib/ActiveDirectoryStore.cs).
+The passkey base library used is [fido2-net-lib](https://github.com/passwordless-lib/fido2-net-lib)
 
 ## MFA with FIDO2 Passkey in ADFS
 
