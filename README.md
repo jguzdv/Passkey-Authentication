@@ -114,6 +114,7 @@ Start-Service -Name ADFSPasskeyHandler
 
 ## Passkey as primary authentication bypassing MFA
 
-Since ADFS does not allow primary authentication methods in any useful way, we are moving the passkey authentication into an SAML2 IDP, that'll have it's own webpage and enable us to 
-make the ADFS think, that the authentication was a proper MFA authentication, allowing anyone authenticating with a passkey to use it as primary two-factor authentication.
-ADFS will use the IDP as ClaimProviderTrust and we're injecting all claims neccessary to make ADFS think it's already been auhtenticated with multiple factors.
+Since ADFS does not allow primary authentication methods to be 2FA'd in any useful way, we are moving the passkey authentication into a SAML2 IDP, that'll have it's own webpage and logic, allowing anyone authenticating with a passkey to use it as two-factor authentication in a single step.
+ADFS will use the IDP as ClaimProviderTrust and we're injecting all claims neccessary to make ADFS think it's already been authenticated with multiple factors.
+
+... to be continued
