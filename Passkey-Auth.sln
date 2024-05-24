@@ -30,9 +30,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F1BF4B11-4885-45CB-9B42-FDA28B6A1C12}"
 	ProjectSection(SolutionItems) = preProject
 		docs\LdapSchema.md = docs\LdapSchema.md
-		docs\PasskeyHandler-SequenceDiagram.md = docs\PasskeyHandler-SequenceDiagram.md
+		docs\PasskeyHandler-Architecture.drawio.svg = docs\PasskeyHandler-Architecture.drawio.svg
 		docs\PasskeyHandler-SequenceDiagram.png = docs\PasskeyHandler-SequenceDiagram.png
 		README.md = README.md
+		docs\PasskeyHandler-SequenceDiagram.txt = docs\PasskeyHandler-SequenceDiagram.txt
 	EndProjectSection
 EndProject
 Global
@@ -79,8 +80,8 @@ Global
 		{862C76EF-CF3E-4EE8-BA0B-41AB620DA1ED} = {5084A875-B072-49C9-A135-7625E7BFD89F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {844D7935-BA57-4897-BECF-A507D34934EF}
-		RESX_NeutralResourcesLanguage = de-DE
 		RESX_SortFileContentOnSave = True
+		RESX_NeutralResourcesLanguage = de-DE
+		SolutionGuid = {844D7935-BA57-4897-BECF-A507D34934EF}
 	EndGlobalSection
 EndGlobal

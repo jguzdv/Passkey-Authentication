@@ -23,6 +23,7 @@ The user agent will process the passkey authentication flow and create an assert
 The assertion options from the ADFS context object as well as the assertion response from the user agent are sent back to the aforementioned passkey handler and processed there.
 If the assertion is valid the handler will answer with HTTP 200 (OK) and the `IAuthenticationAdapter` will signal successfull MFA logon to ADFS.
 
+![Architecture Overview](./docst/PasskeyHandler-Architecture.drawio.svg)
 ![MFA Sequence Diagram](./docs/PasskeyHandler-SequenceDiagram.png)
 
 ### Deployment

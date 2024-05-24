@@ -1,8 +1,8 @@
-﻿using JGUZDV.Passkey.ActiveDirectory.Extensions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.DirectoryServices;
 using System.Runtime.Versioning;
+using JGUZDV.Passkey.ActiveDirectory.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace JGUZDV.Passkey.ActiveDirectory;
 
