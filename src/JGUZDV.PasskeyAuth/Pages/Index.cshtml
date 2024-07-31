@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Passkey-Testseite</title>
+    <title>Passkey-Authentifizierung</title>
     <base href="/" />
 
     <link rel="icon" href="https://cdn.zdv.uni-mainz.de/web/assets/JGU-Quader.ico" />
@@ -16,13 +16,18 @@
     <link href="https://cdn.zdv.uni-mainz.de/web/fontawesome/5-free/css/all.min.css" rel="stylesheet" />
 </head>
 
-<body data-passkey-initiator-url="/passkey" data-passkey-autostart="@(Model.AutoInitPasskey ? "true" : null)">
+@{
+    var useAutoInit = Model.AutoInitPasskey && !string.IsNullOrWhiteSpace(Model.ReturnUrl);
+}
+
+<body data-passkey-initiator-url="/passkey" data-passkey-autostart="@(useAutoInit ? "true" : null)">
     <div id="app" class="jbs-app">
         <div class="px-2 d-flex flex-column align-items-center justify-content-center" style="min-height: 100dvh;">
             <div>
                 <img src="https://cdn.zdv.uni-mainz.de/web/assets/logo_uni-mainz_quader.svg" style="height: 140px;" class="me-1" />
                 <img src="/img/passkey-logo.svg" alt="passkeyLogo" style="height: 140px; aspect-ratio: 1" class="bg-jgu-red pt-3 pb-2" /><br />
             </div>
+
             <div class="mt-2">
                 <button id="passkey-initiator" class="btn btn-light">
                     Mit Passkey anmelden
