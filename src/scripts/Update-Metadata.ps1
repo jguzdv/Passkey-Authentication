@@ -63,7 +63,7 @@ begin {
         }
 
         process {
-            Set-Content -Path "$OutputPath\$($MetadataEntry.AaGuid).json" -Value ($MetadataEntry.metadataStatement | ConvertTo-Json -Depth 10);
+            Set-Content -Path "$OutputPath\$($MetadataEntry.AaGuid).json" -Value ($MetadataEntry.metadataStatement | ConvertTo-Json -Depth 100);
         }
     }
 
