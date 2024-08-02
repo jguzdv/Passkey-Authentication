@@ -35,4 +35,8 @@
     <ProjectReference Include="..\JGUZDV.Passkey.ActiveDirectory\JGUZDV.Passkey.ActiveDirectory.csproj" />
   </ItemGroup>
 
+
+  <Target Name="UpdateFIDOMetadata" BeforeTargets="PrepareForPublish">
+    <Exec Command="pwsh.exe -ExecutionPolicy Bypass -Command &quot;&amp; ../scripts/Update-Metadata.ps1&quot;" />
+  </Target>
 </Project>

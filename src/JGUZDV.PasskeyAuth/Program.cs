@@ -39,7 +39,8 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
     {
         opt.SlidingExpiration = false;
-        opt.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        // TODO: make this configurable
+        opt.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
 
 services.AddFido2(builder.Configuration.GetSection("Fido2"));
