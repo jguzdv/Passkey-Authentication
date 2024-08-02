@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param (
-    [string]$MetadataUrl = 'https://mds3.fidoalliance.org/',
+    [string]$FidoMetadataUrl = 'https://mds3.fidoalliance.org/',
+    [string]$CommunityMetadataUrl = 'https://raw.githubusercontent.com/passkeydeveloper/passkey-authenticator-aaguids/main/combined_aaguid.json',
     [string]$OutputPath = './wwwroot/aaguid/'
 )
 
@@ -50,7 +51,7 @@ begin {
         return [Text.Encoding]::ASCII.GetString($MetadataResponse.Content);
     }
 
-    function Write-AAGuidFile {
+    function Write-FidoAAGuidFile {
         param(
             [Parameter(Mandatory = $true)]
             [string]$OutputPath,
@@ -59,7 +60,9 @@ begin {
         )
 
         begin {
-            New-Item -Path $OutputPath -ItemType "Directory" | Out-Null ;
+            if(!(Test-Path $OutputPath)) {
+                New-Item -Path $OutputPath -ItemType "Directory" | Out-Null ;
+            }
         }
 
         process {
@@ -67,7 +70,26 @@ begin {
         }
     }
 
-    function Invoke-MetadataUpdate {
+    function Write-CommunityAAGuidFile {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$OutputPath,
+            [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+            $MetadataEntry
+        )
+
+        begin {
+            if(!(Test-Path $OutputPath)) {
+                New-Item -Path $OutputPath -ItemType "Directory" | Out-Null ;
+            }
+        }
+
+        process {
+            Set-Content -Path "$OutputPath\$($MetadataEntry.AaGuid).json" -Value ($MetadataEntry.Value | ConvertTo-Json -Depth 100);
+        }
+    }
+
+    function Invoke-FidoMetadataUpdate {
         param(
             [Parameter(Mandatory = $true)]
             [string]$MetadataUrl,
@@ -84,12 +106,36 @@ begin {
 
         # TODO: Validate signature
 
-        $MetadataObject.entries | where { $_.aaguid } | Write-AAGuidFile -OutputPath $OutputPath;
+        $MetadataObject.entries | where { $_.aaguid } | Write-FidoAAGuidFile -OutputPath $OutputPath;
+    }
+
+    function Invoke-CommunityMetadataUpdate {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$MetadataUrl,
+            [Parameter(Mandatory = $true)]
+            [string]$OutputPath
+        )
+
+        $Metadata = Invoke-WebRequest -Uri $MetadataUrl;
+        $MetadataObject = $Metadata.Content | ConvertFrom-Json;
+
+        $MetadataObject.PSObject.Properties | % { [PSCustomObject]@{ AaGuid = $_.Name; Value = $_.Value } } | Write-CommunityAAGuidFile -OutputPath $OutputPath;
     }
 }
 
 process {
-    Invoke-MetadataUpdate -MetadataUrl $MetadataUrl -OutputPath $OutputPath
+    try {
+        Invoke-FidoMetadataUpdate -MetadataUrl $FidoMetadataUrl -OutputPath "$OutputPath/fido"
+    } catch {
+        Write-Error "Failed to update fido metadata: $_"
+    }
+
+    try {
+        Invoke-CommunityMetadataUpdate -MetadataUrl $CommunityMetadataUrl -OutputPath "$OutputPath/community"
+    } catch {
+        Write-Error "Failed to update community metadata: $_"
+    }
 }
 
 #$Header
