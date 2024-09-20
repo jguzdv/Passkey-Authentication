@@ -43,7 +43,8 @@ public class PasskeyController(
         var assertionResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(response.WebAuthNAssertionResponseJson)
             ?? throw new BadHttpRequestException("Request:WebAuthNAssertionMissing");
 
-        var jsonFidoAssertionOptions = HttpContext.Session.GetString("fido2.assertionOptions");
+        var jsonFidoAssertionOptions = HttpContext.Session.GetString("fido2.assertionOptions")
+            ?? throw new BadHttpRequestException("Session:AssertionOptionsMissing");
         var assertionOptions = AssertionOptions.FromJson(jsonFidoAssertionOptions)
             ?? throw new BadHttpRequestException("Session:AssertionOptionsMissing");
 

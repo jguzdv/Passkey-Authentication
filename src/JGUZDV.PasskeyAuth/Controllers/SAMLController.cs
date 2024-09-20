@@ -113,11 +113,11 @@ public class SAMLController(
             return Redirect("~/?returnUrl=" + returnUrl);
         }
 
-        return CreateSamlRespone();
+        return CreateSamlResponse();
     }
 
 
-    private IActionResult CreateSamlRespone()
+    private IActionResult CreateSamlResponse()
     {
         var httpRequest = Request.ToGenericHttpRequest(validate: true);
         var samlRequest = httpRequest.Binding.ReadSamlRequest(httpRequest, new Saml2AuthnRequest(_samlConfig));
@@ -134,6 +134,14 @@ public class SAMLController(
         {
             httpRequest.Binding.Unbind(httpRequest, saml2AuthnRequest);
             var claims = new List<Claim>(HttpContext.User.Claims);
+
+            //TODO: Add more claims from AD (JGUZDV.ActiveDirectory should help)
+            // - GroupSIDs
+            // - SID of user
+            // - GUID of user
+            // - MFA claim, if AAGuid is applicable
+            // - AMR claim
+            // - UPN
 
             return LoginPostResponse(saml2AuthnRequest.Id, Saml2StatusCodes.Success, httpRequest.Binding.RelayState, relyingParty, rpConfig, claims);
         }
