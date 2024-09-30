@@ -1,5 +1,6 @@
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.Configuration;
+using JGUZDV.ActiveDirectory;
 using JGUZDV.Passkey.ActiveDirectory.Extensions;
 using JGUZDV.PasskeyAuth.SAML2;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -20,6 +21,10 @@ if (builder.Environment.IsProduction())
     });
     builder.AddJGUZDVDataProtection();
 }
+
+//TODO: Replace with a merge mechanism as in OIDC-Server
+services.AddPropertyReader(opt => builder.Configuration.GetRequiredSection("PropertyReader").Bind(opt));
+services.AddClaimProvider(opt => builder.Configuration.GetRequiredSection("ClaimProvider").Bind(opt));
 
 services.AddHttpClient();
 services.AddTransient((sp) => TimeProvider.System);

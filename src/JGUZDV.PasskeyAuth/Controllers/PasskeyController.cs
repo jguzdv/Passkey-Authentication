@@ -1,5 +1,6 @@
 using Fido2NetLib;
 using Fido2NetLib.Objects;
+using JGUZDV.ActiveDirectory.Claims;
 using JGUZDV.Passkey.ActiveDirectory;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -38,21 +39,79 @@ public class PasskeyController(
     public async Task<IActionResult> AuthenticateUser(
         [FromForm] WebAuthNResponse response,
         [FromServices] ActiveDirectoryService adService,
+        [FromServices] IClaimProvider claimProvider,
         CancellationToken ct)
     {
-        var assertionResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(response.WebAuthNAssertionResponseJson)
-            ?? throw new BadHttpRequestException("Request:WebAuthNAssertionMissing");
+        var assertionResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(response.WebAuthNAssertionResponseJson);
+        if (assertionResponse == null)
+        {
+            return BadRequest("Request:WebAuthNAssertionMissing");
+        }
 
-        var jsonFidoAssertionOptions = HttpContext.Session.GetString("fido2.assertionOptions")
-            ?? throw new BadHttpRequestException("Session:AssertionOptionsMissing");
-        var assertionOptions = AssertionOptions.FromJson(jsonFidoAssertionOptions)
-            ?? throw new BadHttpRequestException("Session:AssertionOptionsMissing");
+        var jsonFidoAssertionOptions = HttpContext.Session.GetString("fido2.assertionOptions");
+        if (jsonFidoAssertionOptions == null)
+        {
+            return BadRequest("Session:AssertionOptionsMissing");
+        }
 
+        var assertionOptions = AssertionOptions.FromJson(jsonFidoAssertionOptions);
+        if (assertionOptions == null)
+        {
+            return BadRequest("Session:AssertionOptionsMissing");
+        }
+
+        var (passkeyDescriptor, errorResult) = await TryHandleAssertion(adService, assertionResponse, assertionOptions, ct);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
+
+        var identity = CreateClaimsIdentity(passkeyDescriptor!, claimProvider);
+
+        await HttpContext.SignInAsync(
+            new ClaimsPrincipal(identity)
+        );
+
+        if (Url.IsLocalUrl(response.ReturnUrl))
+        {
+            return Redirect(response.ReturnUrl);
+        }
+
+        throw new BadHttpRequestException("Request:ReturnUrlInvalid");
+    }
+
+
+    private ClaimsIdentity CreateClaimsIdentity(PasskeyDescriptor passkey, IClaimProvider claimProvider)
+    {
+        var userClaims = claimProvider.GetClaims(passkey.Owner.DirectoryEntry, ["sub","role"]).ToList();
+        var systemClaims = GetSystemClaims(passkey).ToList();
+
+        return new ClaimsIdentity(
+            userClaims.Concat(systemClaims).Select(x => new Claim(x.Type, x.Value)),
+            "Fido2",
+            "sub",
+            "role");
+    }
+
+    private IEnumerable<(string Type, string Value)> GetSystemClaims(PasskeyDescriptor passkey)
+    {
+        // TODO: Prüfe Backup-flags auf 0, wenn 0 prüfe gegen AAGuid-Whitelist für 2FA
+        return [];
+    }
+
+    private async Task<(PasskeyDescriptor? passkeyDescriptor, IActionResult? errorResult)> TryHandleAssertion(
+        ActiveDirectoryService adService,
+        AuthenticatorAssertionRawResponse assertionResponse,
+        AssertionOptions assertionOptions,
+        CancellationToken ct)
+    {
         //Read users passkey from active directory
-        var passkeyDescriptor = adService.GetPasskeyFromCredentialId(assertionResponse.Id)
-            ?? throw new BadHttpRequestException("Passkey:NotFound");
+        var passkeyDescriptor = adService.GetPasskeyFromCredentialId(assertionResponse.Id);
+        if (passkeyDescriptor == null)
+        {
+            return (null, BadRequest("Passkey:NotFound"));
+        }
 
-        
         try
         {
             var assertionResult = await _fido2.MakeAssertionAsync(
@@ -68,44 +127,24 @@ public class PasskeyController(
             if (!string.IsNullOrWhiteSpace(assertionResult.ErrorMessage))
             {
                 _logger.LogError("Passkey Assertion failed: {errorMessage}", assertionResult.ErrorMessage);
-                throw new BadHttpRequestException("Passkey:AssertionFailed");
+                return (null, BadRequest("Passkey:AssertionFailed"));
             }
         }
         catch (Exception exc)
         {
             _logger.LogError(exc, "Passkey Assertion failed.");
-            throw new BadHttpRequestException("Passkey:AssertionFailed", exc);
+            return (null, BadRequest("Passkey:AssertionFailed"));
         }
 
         var now = _timeProvider.GetUtcNow();
         if (!adService.IsUserAllowedToLogin(passkeyDescriptor.Owner.DirectoryEntry, now))
         {
-            throw new BadHttpRequestException("User:LoginNotAllowed");
+            return (null, BadRequest("User:LoginNotAllowed"));
         }
 
         adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, now);
         adService.UpdateUserLastLogin(passkeyDescriptor.Owner.DistinguishedName, now);
 
-        await HttpContext.SignInAsync(
-            new ClaimsPrincipal(
-                new ClaimsIdentity(
-                    [
-                        new Claim("sub", passkeyDescriptor.Owner.ObjectGuid.ToString()),
-                        new Claim("zdv_upn", passkeyDescriptor.Owner.UserPrincipalName),
-                        new Claim("zdv_eppn", passkeyDescriptor.Owner.EduPersonPrincipalName)
-                    ],
-                    "Fido2",
-                    "sub",
-                    null
-                )
-            )
-        );
-
-        if (Url.IsLocalUrl(response.ReturnUrl))
-        {
-            return Redirect(response.ReturnUrl);
-        }
-
-        throw new BadHttpRequestException("Request:ReturnUrlInvalid");
+        return (passkeyDescriptor, null);
     }
 }
