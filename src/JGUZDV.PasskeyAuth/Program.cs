@@ -1,7 +1,9 @@
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.Configuration;
 using JGUZDV.ActiveDirectory;
+using JGUZDV.ActiveDirectory.Configuration;
 using JGUZDV.Passkey.ActiveDirectory.Extensions;
+using JGUZDV.PasskeyAuth.Configuration;
 using JGUZDV.PasskeyAuth.SAML2;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
@@ -22,9 +24,44 @@ if (builder.Environment.IsProduction())
     builder.AddJGUZDVDataProtection();
 }
 
-//TODO: Replace with a merge mechanism as in OIDC-Server
-services.AddPropertyReader(opt => builder.Configuration.GetRequiredSection("PropertyReader").Bind(opt));
-services.AddClaimProvider(opt => builder.Configuration.GetRequiredSection("ClaimProvider").Bind(opt));
+
+services.AddPropertyReader();
+services.AddClaimProvider();
+
+// Add property reader options for the properties we want to read from the AD.
+services.AddOptions<PropertyReaderOptions>()
+    .PostConfigure<IOptions<PasskeyAuthOptions>>((readerOptions, serverOptions) =>
+    {
+        foreach (var prop in serverOptions.Value.Properties)
+        {
+            readerOptions.PropertyInfos.Add(
+                prop.Key,
+                new(
+                    prop.Key,
+                    prop.Value switch
+                    {
+                        "int" => typeof(int),
+                        "long" => typeof(long),
+                        "DateTime" => typeof(DateTime),
+                        "byte[]" => typeof(byte[]),
+                        _ => typeof(string)
+                    }
+                )
+            );
+        }
+    });
+
+// Same, but for claims.
+services.AddOptions<ClaimProviderOptions>()
+    .PostConfigure<IOptions<PasskeyAuthOptions>>((cpOptions, serverOptions) =>
+    {
+        foreach (var src in serverOptions.Value.ClaimSources)
+        {
+            cpOptions.ClaimSources.RemoveAll(c => c.ClaimType.Equals(src.ClaimType, StringComparison.OrdinalIgnoreCase));
+            cpOptions.ClaimSources.Add(src);
+        }
+    });
+
 
 services.AddHttpClient();
 services.AddTransient((sp) => TimeProvider.System);
