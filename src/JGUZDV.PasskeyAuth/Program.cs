@@ -24,6 +24,9 @@ if (builder.Environment.IsProduction())
     builder.AddJGUZDVDataProtection();
 }
 
+services.AddOptions<PasskeyAuthOptions>()
+    .BindConfiguration("PasskeyAuth")
+    .ValidateDataAnnotations();
 
 services.AddPropertyReader();
 services.AddClaimProvider();

@@ -7,6 +7,8 @@ public class PasskeyAuthOptions
 {
     public required ActiveDirectoryOptions ActiveDirectory { get; set; }
 
+    public List<Guid> MFAWhitelist { get; set;} = [];
+
     public Dictionary<string, string> Properties { get; set; } = [];
     public List<ClaimSource> ClaimSources { get; set; } = [];
 }

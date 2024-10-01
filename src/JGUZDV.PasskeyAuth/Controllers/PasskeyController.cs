@@ -2,8 +2,11 @@ using Fido2NetLib;
 using Fido2NetLib.Objects;
 using JGUZDV.ActiveDirectory.Claims;
 using JGUZDV.Passkey.ActiveDirectory;
+using JGUZDV.PasskeyAuth.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -14,6 +17,7 @@ namespace JGUZDV.PasskeyAuth.Controllers;
 public class PasskeyController(
     IFido2 _fido2,
     TimeProvider _timeProvider,
+    IOptions<PasskeyAuthOptions> _options,
     ILogger<PasskeyController> _logger
     ) : ControllerBase
 {
@@ -83,7 +87,7 @@ public class PasskeyController(
 
     private ClaimsIdentity CreateClaimsIdentity(PasskeyDescriptor passkey, IClaimProvider claimProvider)
     {
-        var userClaims = claimProvider.GetClaims(passkey.Owner.DirectoryEntry, ["sub","role"]).ToList();
+        var userClaims = claimProvider.GetClaims(passkey.Owner.DirectoryEntry, ["sub", "role", "userSid", "upn" ]).ToList();
         var systemClaims = GetSystemClaims(passkey).ToList();
 
         return new ClaimsIdentity(
@@ -95,8 +99,22 @@ public class PasskeyController(
 
     private IEnumerable<(string Type, string Value)> GetSystemClaims(PasskeyDescriptor passkey)
     {
-        // TODO: Prüfe Backup-flags auf 0, wenn 0 prüfe gegen AAGuid-Whitelist für 2FA
-        return [];
+        var result = new List<(string Type, string Value)>
+        {
+            ("amr", "FIDO2Passkey"),
+        };
+
+        var regardAsMultiFactorAuthentication =
+            !passkey.IsBackupEligible || // We assume non backupable passkeys are hardware-tokens, that are considered 2FA
+            _options.Value.MFAWhitelist.Contains(passkey.Aaguid); // If not, we check if the passkey is in the whitelist to be treated as 2FA
+
+        if (regardAsMultiFactorAuthentication)
+        {
+            result.Add(("amr", "MFA"));
+            result.Add(("mfa_auth_time", _timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture)));
+        }
+
+        return result;
     }
 
     private async Task<(PasskeyDescriptor? passkeyDescriptor, IActionResult? errorResult)> TryHandleAssertion(
