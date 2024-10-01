@@ -1,10 +1,12 @@
-﻿using System.DirectoryServices;
+using System.DirectoryServices;
 
 namespace JGUZDV.Passkey.ActiveDirectory;
 
 public record PasskeyDescriptor(
-    byte[] Credential,
     string DistinguishedName,
+    byte[] Credential,
+    Guid Aaguid,
+    bool IsBackupEligible,
     PasskeyOwner Owner,
     DirectoryEntry DirectoryEntry
 );

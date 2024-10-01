@@ -25,7 +25,7 @@ public class ActiveDirectoryService
         using var passkeySearcher = new DirectorySearcher(
             new DirectoryEntry($"LDAP://{_adOptions.Value.Server}/{_adOptions.Value.BaseOU}"),
             $"(&(objectClass=fIDOAuthenticatorDevice)(fIDOAuthenticatorCredentialId={credentialString}))",
-            ["distinguishedName", "userCertificate"],
+            ["distinguishedName", "userCertificate", "fIDOAuthenticatorAaguid", "flags"],
             SearchScope.Subtree);
 
         SearchResultCollection? passkeyResults;
@@ -77,8 +77,10 @@ public class ActiveDirectoryService
         );
 
         return new(
-            (byte[])passkey.Properties["userCertificate"][0],
             passkeyDN,
+            (byte[])passkey.Properties["userCertificate"][0],
+            new Guid((byte[])passkey.Properties["fIDOAuthenticatorAaguid"][0]),
+            (passkey.Properties["flags"][0] is int i) && ((i & 1) == 1), // IsBckupEligible
             owner,
             passkey.GetDirectoryEntry());
     }
