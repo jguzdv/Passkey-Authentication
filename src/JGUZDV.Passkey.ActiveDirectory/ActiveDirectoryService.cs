@@ -25,7 +25,7 @@ public class ActiveDirectoryService
         using var passkeySearcher = new DirectorySearcher(
             new DirectoryEntry($"LDAP://{_adOptions.Value.Server}/{_adOptions.Value.BaseOU}"),
             $"(&(objectClass=fIDOAuthenticatorDevice)(fIDOAuthenticatorCredentialId={credentialString}))",
-            ["distinguishedName", "userCertificate"],
+            ["distinguishedName", "userCertificate", "fIDOAuthenticatorAaguid", "flags"],
             SearchScope.Subtree);
 
         SearchResultCollection? passkeyResults;
@@ -66,23 +66,48 @@ public class ActiveDirectoryService
             return null;
         }
 
+        var owner = GetPasskeyOwnerInfo(userResult);
 
+        return GetPasskeyDescriptor(passkey, owner);
+    }
 
-        var owner = new PasskeyOwner(
+    private static PasskeyDescriptor GetPasskeyDescriptor(SearchResult passkey, PasskeyOwner owner)
+    {
+        var distinguishedName = (string)passkey.Properties["distinguishedName"][0];
+        var credential = (byte[])passkey.Properties["userCertificate"][0];
+
+        var aaguid = (byte[])passkey.Properties["fIDOAuthenticatorAaguid"][0];
+
+        bool? isBackupEligible = null;
+        if(passkey.Properties["flags"].Count > 0)
+        {
+            if (passkey.Properties["flags"][0] is int i)
+            {
+                isBackupEligible = (i & 1) == 1;
+            }
+        }
+            
+
+        return new(
+            distinguishedName,
+            credential,
+            new Guid(aaguid),
+            isBackupEligible,
+            owner,
+            passkey.GetDirectoryEntry()
+        );
+    }
+
+    private static PasskeyOwner GetPasskeyOwnerInfo(SearchResult userResult)
+    {
+        return new PasskeyOwner(
             new Guid((byte[])userResult.Properties["objectGuid"][0]),
             (string)userResult.Properties["distinguishedName"][0],
             (string)userResult.Properties["userPrincipalName"][0],
             (string)userResult.Properties["eduPersonPrincipalName"][0],
             userResult.GetDirectoryEntry()
         );
-
-        return new(
-            (byte[])passkey.Properties["userCertificate"][0],
-            passkeyDN,
-            owner,
-            passkey.GetDirectoryEntry());
     }
-
 
     public void UpdatePasskeyLastUsed(string passkeyDN, DateTimeOffset lastUsageTime)
     {
