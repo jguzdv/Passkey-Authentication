@@ -14,7 +14,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="JGUZDV.ActiveDirectory" Version="1.0.0-beta3" />
+    <PackageReference Include="JGUZDV.ActiveDirectory" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.8" />
     <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
