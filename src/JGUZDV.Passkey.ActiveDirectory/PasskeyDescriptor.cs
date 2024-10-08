@@ -6,7 +6,7 @@ public record PasskeyDescriptor(
     string DistinguishedName,
     byte[] Credential,
     Guid Aaguid,
-    bool IsBackupEligible,
+    bool? IsBackupEligible,
     PasskeyOwner Owner,
     DirectoryEntry DirectoryEntry
 );
