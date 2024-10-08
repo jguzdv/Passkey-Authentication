@@ -2,6 +2,7 @@ using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.Configuration;
 using JGUZDV.ActiveDirectory;
 using JGUZDV.ActiveDirectory.Configuration;
+using JGUZDV.Passkey.ActiveDirectory;
 using JGUZDV.Passkey.ActiveDirectory.Extensions;
 using JGUZDV.PasskeyAuth.Configuration;
 using JGUZDV.PasskeyAuth.SAML2;
@@ -27,6 +28,13 @@ if (builder.Environment.IsProduction())
 services.AddOptions<PasskeyAuthOptions>()
     .BindConfiguration("PasskeyAuth")
     .ValidateDataAnnotations();
+
+services.AddOptions<ActiveDirectoryOptions>()
+    .Configure<IOptions<PasskeyAuthOptions>>((opt, pkauth) =>
+    {
+        opt.Server = pkauth.Value.ActiveDirectory.Server;
+        opt.BaseOU = pkauth.Value.ActiveDirectory.BaseOU;
+    });
 
 services.AddPropertyReader();
 services.AddClaimProvider();
