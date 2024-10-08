@@ -105,7 +105,7 @@ public class PasskeyController(
         };
 
         var regardAsMultiFactorAuthentication =
-            !passkey.IsBackupEligible || // We assume non backupable passkeys are hardware-tokens, that are considered 2FA
+            passkey.IsBackupEligible == false || // We assume non backupable passkeys are hardware-tokens, that are considered 2FA
             _options.Value.MFAWhitelist.Contains(passkey.Aaguid); // If not, we check if the passkey is in the whitelist to be treated as 2FA
 
         if (regardAsMultiFactorAuthentication)
