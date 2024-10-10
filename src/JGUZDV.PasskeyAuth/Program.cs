@@ -4,6 +4,7 @@ using JGUZDV.Passkey.ActiveDirectory.Extensions;
 using JGUZDV.PasskeyAuth.SAML2;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 
@@ -52,16 +53,34 @@ services.AddHostedService<SPMetadataLoader>();
 services.AddScoped(sp => sp.GetRequiredService<IOptionsSnapshot<Saml2Configuration>>().Value);
 services.AddOptions<Saml2Configuration>()
     .Bind(builder.Configuration.GetSection("Saml2:IDP"))
-    .PostConfigure<IConfiguration>((saml2, config) =>
+    .PostConfigure<IConfiguration, ILogger<Saml2Configuration>>((saml2, config, logger) =>
     {
-        var certifiates = Directory.GetFiles(config["SAML2:CertificatesPath"]!, "*.pfx")
-            .Select(x => new X509Certificate2(x, config["SAML2:CertificatePassword"]))
-            .ToList();
+        var certificateFiles = Directory.GetFiles(config["SAML2:CertificatesPath"]!, "*.pfx");
+        if (certificateFiles.Length == 0)
+        {
+            throw new Saml2ConfigurationException("No certificates found in the configured path.");
+        }
 
-        saml2.DecryptionCertificates.AddRange(certifiates);
+        var certificates = new List<X509Certificate2>();
+
+        foreach(var certFile in certificateFiles)
+        {
+            try
+            {
+                var pfx = new X509Certificate2(certFile, config["SAML2:CertificatePassword"]);
+                certificates.Add(pfx);
+            }
+            catch (CryptographicException)
+            {
+                logger.LogWarning("Failed to load certificate {certFile}.", certFile);
+                continue;
+            }
+        }
+
+        saml2.DecryptionCertificates.AddRange(certificates);
 
         // Take the oldest certificate that is still valid
-        saml2.SigningCertificate = certifiates
+        saml2.SigningCertificate = certificates
             .Where(x => x.IsValidLocalTime())
             .OrderBy(x => x.NotAfter)
             .First();
