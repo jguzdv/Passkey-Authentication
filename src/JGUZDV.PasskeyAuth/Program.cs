@@ -70,9 +70,9 @@ services.AddOptions<Saml2Configuration>()
                 var pfx = new X509Certificate2(certFile, config["SAML2:CertificatePassword"]);
                 certificates.Add(pfx);
             }
-            catch (CryptographicException)
+            catch (Exception ex)
             {
-                logger.LogWarning("Failed to load certificate {certFile}.", certFile);
+                logger.LogWarning(ex, "Failed to load certificate {certFile}.", certFile);
                 continue;
             }
         }
