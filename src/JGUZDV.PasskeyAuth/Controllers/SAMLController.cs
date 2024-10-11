@@ -95,7 +95,7 @@ public class SAMLController(
 
 
     [HttpGet("status")]
-    public async Task<IActionResult> Status()
+    public IActionResult Status()
     {
         // TODO: Write out metadata that has been loaded
         return Ok("Statuspage");
@@ -113,11 +113,11 @@ public class SAMLController(
             return Redirect("~/?returnUrl=" + returnUrl);
         }
 
-        return CreateSamlResponse();
+        return CreateSamlResponse(authResult.Principal);
     }
 
 
-    private IActionResult CreateSamlResponse()
+    private IActionResult CreateSamlResponse(ClaimsPrincipal principal)
     {
         var httpRequest = Request.ToGenericHttpRequest(validate: true);
         var samlRequest = httpRequest.Binding.ReadSamlRequest(httpRequest, new Saml2AuthnRequest(_samlConfig));
@@ -133,11 +133,8 @@ public class SAMLController(
         try
         {
             httpRequest.Binding.Unbind(httpRequest, saml2AuthnRequest);
-            var claims = new List<Claim>(HttpContext.User.Claims);
 
-            
-
-            return LoginPostResponse(saml2AuthnRequest.Id, Saml2StatusCodes.Success, httpRequest.Binding.RelayState, relyingParty, rpConfig, claims);
+            return LoginPostResponse(saml2AuthnRequest.Id, Saml2StatusCodes.Success, httpRequest.Binding.RelayState, relyingParty, rpConfig, principal.Claims);
         }
         catch (Exception exc)
         {
@@ -162,12 +159,8 @@ public class SAMLController(
 
         if (status == Saml2StatusCodes.Success && claims != null)
         {
-            //var claimsIdentity = new ClaimsIdentity(claims);
-            //saml2AuthnResponse.NameId = new Saml2NameIdentifier(claimsIdentity.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).Single(), NameIdentifierFormats.Persistent);
-            //saml2AuthnResponse.NameId = new Saml2NameIdentifier(claimsIdentity.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).Single());
-            saml2AuthnResponse.ClaimsIdentity = (ClaimsIdentity)HttpContext.User.Identity!;
+            saml2AuthnResponse.ClaimsIdentity = new ClaimsIdentity(claims, "FIDO2", "sub", "role");
 
-            // TODO: Declare some more claims, like AMR
             var token = saml2AuthnResponse.CreateSecurityToken(
                 relyingParty.EntityId,
                 subjectConfirmationLifetime: 5,
