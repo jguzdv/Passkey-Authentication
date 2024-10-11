@@ -95,7 +95,8 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         opt.SlidingExpiration = false;
         // TODO: make this configurable
         opt.ExpireTimeSpan = TimeSpan.FromHours(8);
-    });
+    })
+    .AddCookieDistributedTicketStore();
 
 services.AddFido2(builder.Configuration.GetSection("Fido2"));
 services.AddPasskeyActiveDirectoryServices("ActiveDirectory");

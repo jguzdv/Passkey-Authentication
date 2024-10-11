@@ -14,6 +14,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.10" />
     <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
