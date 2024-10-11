@@ -170,8 +170,6 @@ public class SAMLController(
             // TODO: Declare some more claims, like AMR
             var token = saml2AuthnResponse.CreateSecurityToken(
                 relyingParty.EntityId,
-                /*authnContext: new Uri("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"),*/
-                /*declAuthnContext: new Uri("urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified"),*/
                 subjectConfirmationLifetime: 5,
                 issuedTokenLifetime: 60
                 );
