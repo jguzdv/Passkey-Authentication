@@ -26,14 +26,19 @@ if (builder.Environment.IsProduction())
 
 services.AddOptions<PasskeyAuthOptions>()
     .BindConfiguration("PasskeyAuth")
-    .ValidateDataAnnotations();
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 services.AddOptions<ActiveDirectoryOptions>()
     .Configure<IOptions<PasskeyAuthOptions>>((opt, pkauth) =>
     {
         opt.Server = pkauth.Value.ActiveDirectory.Server;
         opt.BaseOU = pkauth.Value.ActiveDirectory.BaseOU;
-    });
+    })
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+services.AddScoped<ActiveDirectoryService>();
 
 services.AddPropertyReader();
 services.AddClaimProvider();
@@ -97,14 +102,14 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookieDistributedTicketStore();
 
 services.AddFido2(builder.Configuration.GetSection("Fido2"));
-services.AddPasskeyActiveDirectoryServices("ActiveDirectory");
 
 services.AddKeyedSingleton("Saml2:SP", new RelyingPartyMetadata());
 services.AddHostedService<SPMetadataLoader>();
 
 services.AddOptions<CertificateOptions>()
     .Bind(builder.Configuration.GetSection("Saml2"))
-    .ValidateDataAnnotations();
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 services.AddSingleton<CertificateContainer>();
 services.AddHostedService<CertificateManager>();

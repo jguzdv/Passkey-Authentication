@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JGUZDV.Passkey.ActiveDirectory.Extensions
 {
@@ -9,7 +9,9 @@ namespace JGUZDV.Passkey.ActiveDirectory.Extensions
             string configSectionName) 
         {
             services.AddOptions<ActiveDirectoryOptions>()
-                .BindConfiguration(configSectionName);
+                .BindConfiguration(configSectionName)
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
             services.AddScoped<ActiveDirectoryService>();
 
