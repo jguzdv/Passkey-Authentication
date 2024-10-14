@@ -163,10 +163,10 @@ public class SAMLController(
             //saml2AuthnResponse.NameId = new Saml2NameIdentifier(claimsIdentity.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).Single());
             saml2AuthnResponse.ClaimsIdentity = (ClaimsIdentity)HttpContext.User.Identity!;
 
-            // TODO: Declare some more claims, like AMR
             var token = saml2AuthnResponse.CreateSecurityToken(
                 relyingParty.EntityId,
                 subjectConfirmationLifetime: 5,
+                // TODO: there seems to be no ac:class for FIDO2 currently
                 authnContext: new Uri("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"),
                 issuedTokenLifetime: 60
                 );
