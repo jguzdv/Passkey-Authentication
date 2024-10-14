@@ -1,15 +1,13 @@
 using ITfoxtec.Identity.Saml2;
-using ITfoxtec.Identity.Saml2.Configuration;
 using JGUZDV.ActiveDirectory;
 using JGUZDV.ActiveDirectory.Configuration;
 using JGUZDV.Passkey.ActiveDirectory;
 using JGUZDV.Passkey.ActiveDirectory.Extensions;
 using JGUZDV.PasskeyAuth.Configuration;
 using JGUZDV.PasskeyAuth.SAML2;
+using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -104,46 +102,22 @@ services.AddPasskeyActiveDirectoryServices("ActiveDirectory");
 services.AddKeyedSingleton("Saml2:SP", new RelyingPartyMetadata());
 services.AddHostedService<SPMetadataLoader>();
 
+services.AddOptions<CertificateOptions>()
+    .Bind(builder.Configuration.GetSection("Saml2"))
+    .ValidateDataAnnotations();
+
+services.AddSingleton<CertificateContainer>();
+services.AddHostedService<CertificateManager>();
+
 services.AddScoped(sp => sp.GetRequiredService<IOptionsSnapshot<Saml2Configuration>>().Value);
 services.AddOptions<Saml2Configuration>()
     .Bind(builder.Configuration.GetSection("Saml2:IDP"))
-    .PostConfigure<IConfiguration, ILogger<Saml2Configuration>>((saml2, config, logger) =>
+    .PostConfigure<CertificateContainer>((saml2, certificateContainer) =>
     {
-        var certificateFiles = Directory.GetFiles(config["SAML2:CertificatesPath"]!, "*.pfx");
-        if (certificateFiles.Length == 0)
-        {
-            throw new Saml2ConfigurationException("No certificates found in the configured path.");
-        }
-
-        var certificates = new List<X509Certificate2>();
-
-        foreach(var certFile in certificateFiles)
-        {
-            try
-            {
-                var pfx = new X509Certificate2(certFile, config["SAML2:CertificatePassword"]);
-                certificates.Add(pfx);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Failed to load certificate {certFile}.", certFile);
-                continue;
-            }
-        }
-
-        saml2.DecryptionCertificates.AddRange(certificates);
-
-        // Take the oldest certificate that is still valid
-        saml2.SigningCertificate = certificates
-            .Where(x => x.IsValidLocalTime())
-            .OrderBy(x => x.NotAfter)
-            .First();
-
-        if (saml2.SigningCertificate?.IsValidLocalTime() != true)
-        {
-            throw new Saml2ConfigurationException("The IdP signing certificates has expired.");
-        }
         saml2.AllowedAudienceUris.Add(saml2.Issuer);
+
+        saml2.DecryptionCertificates.AddRange(certificateContainer.GetCertificates());
+        saml2.SigningCertificate = certificateContainer.GetSignatureCertificate();
     });
 
 

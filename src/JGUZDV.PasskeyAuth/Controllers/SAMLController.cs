@@ -6,6 +6,7 @@ using ITfoxtec.Identity.Saml2.MvcCore;
 using ITfoxtec.Identity.Saml2.Schemas;
 using ITfoxtec.Identity.Saml2.Schemas.Metadata;
 using JGUZDV.PasskeyAuth.SAML2;
+using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +17,13 @@ namespace JGUZDV.PasskeyAuth.Controllers;
 [Route("saml2/idp")]
 public class SAMLController(
     Saml2Configuration samlConfig,
+    CertificateContainer certificateContainer,
     [FromKeyedServices("Saml2:SP")] RelyingPartyMetadata rpMetadata
     )
     : ControllerBase
 {
     private readonly Saml2Configuration _samlConfig = samlConfig;
+    private readonly CertificateContainer _certificateContainer = certificateContainer;
     private readonly RelyingPartyMetadata _rpMetadata = rpMetadata;
 
     [HttpGet("metadata")]
@@ -32,9 +35,11 @@ public class SAMLController(
             IdPSsoDescriptor = new IdPSsoDescriptor
             {
                 WantAuthnRequestsSigned = _samlConfig.SignAuthnRequest,
-                SigningCertificates = [_samlConfig.SigningCertificate],
 
-                //EncryptionCertificates = config.DecryptionCertificates,
+                // We'll always announce all certificates in metadata
+                SigningCertificates = _certificateContainer.GetCertificates(),
+                EncryptionCertificates = _certificateContainer.GetCertificates(),
+
                 SingleSignOnServices =
                 [
                     new()
@@ -51,15 +56,6 @@ public class SAMLController(
                         Location = new Uri(new Uri($"{Request.Scheme}://{Request.Host}"), Url.Content("~/saml2/idp/logout"))
                     }
                 ],
-                //ArtifactResolutionServices =
-                //[
-                //    new()
-                //    {
-                //        Binding = ProtocolBindings.ArtifactSoap,
-                //        Index = _samlConfig.ArtifactResolutionService.Index,
-                //        Location = _samlConfig.ArtifactResolutionService.Location
-                //    }
-                //],
                 NameIDFormats = [
                     NameIdentifierFormats.Unspecified,
                 ],
@@ -164,6 +160,8 @@ public class SAMLController(
             var token = saml2AuthnResponse.CreateSecurityToken(
                 relyingParty.EntityId,
                 subjectConfirmationLifetime: 5,
+                // TODO: there seems to be no ac:class for FIDO2 currently
+                authnContext: new Uri("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"),
                 issuedTokenLifetime: 60
                 );
         }
@@ -193,7 +191,9 @@ public class SAMLController(
             rpConfig.SignatureValidationCertificates.AddRange(relyingParty.SPSsoDescriptor.SigningCertificates);
             if (relyingParty.SPSsoDescriptor.EncryptionCertificates?.Count() > 0)
             {
-                rpConfig.EncryptionCertificate = relyingParty.SPSsoDescriptor.EncryptionCertificates.LastOrDefault();
+                rpConfig.EncryptionCertificate = relyingParty.SPSsoDescriptor.EncryptionCertificates
+                    .Where(x => x.IsValidLocalTime())
+                    .LastOrDefault();
             }
         }
 

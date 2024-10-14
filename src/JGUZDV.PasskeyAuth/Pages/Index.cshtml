@@ -1,20 +1,5 @@
 ﻿@page "/"
 @model JGUZDV.PasskeyAuth.Pages.IndexModel;
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Passkey-Authentifizierung</title>
-    <base href="/" />
-
-    <link rel="icon" href="https://cdn.zdv.uni-mainz.de/web/assets/JGU-Quader.ico" />
-    <link rel="icon" sizes="16x16 32x32 64x64" href="https://cdn.zdv.uni-mainz.de/web/assets/JGU-Quader.ico">
-    <link rel="icon" sizes="180x180" href="https://cdn.zdv.uni-mainz.de/web/assets/JGU-Quader-180.png">
-
-    <link href="https://cdn.zdv.uni-mainz.de/web/jg-ootstrap/jg-ootstrap.css" rel="stylesheet" />
-    <link href="https://cdn.zdv.uni-mainz.de/web/fontawesome/5-free/css/all.min.css" rel="stylesheet" />
-</head>
 
 @{
     var useAutoInit = Model.AutoInitPasskey && !string.IsNullOrWhiteSpace(Model.ReturnUrl);
@@ -24,12 +9,11 @@
     <div id="app" class="jbs-app">
         <div class="px-2 d-flex flex-column align-items-center justify-content-center" style="min-height: 100dvh;">
             <div>
-                <img src="https://cdn.zdv.uni-mainz.de/web/assets/logo_uni-mainz_quader.svg" style="height: 140px;" class="me-1" />
-                <img src="/img/passkey-logo.svg" alt="passkeyLogo" style="height: 140px; aspect-ratio: 1" class="bg-jgu-red pt-3 pb-2" /><br />
+                <img src="/img/passkey-logo.svg" alt="passkeyLogo" style="height: 200px; aspect-ratio: 1" />
             </div>
 
             <div class="mt-2">
-                <button id="passkey-initiator" class="btn btn-light">
+                <button id="passkey-initiator" class="btn btn-light @(useAutoInit ? "d-none":null)">
                     Mit Passkey anmelden
                 </button>
             </div>
@@ -38,9 +22,12 @@
                 <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
                 <input type="hidden" id="assertion-response" name="WebAuthNAssertionResponseJson" />
             </form>
+
+            <div class="mt-4">
+                <img src="https://cdn.zdv.uni-mainz.de/web/assets/logo_uni-mainz_grey.svg" style="height: 100px;" class="py-2" />
+            </div>
         </div>
     </div>
 
     <script defer src="/ts/app.js" type="module"></script>
 </body>
-</html>

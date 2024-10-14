@@ -11,7 +11,11 @@ public class IndexModel : PageModel
     }
 
     [BindProperty(SupportsGet = true)]
-    public string? ReturnUrl { get; set; }  
+    public string? ReturnUrl { get; set; }
+
 
     public bool AutoInitPasskey { get; }
+    public string RedirectUrl => string.IsNullOrWhiteSpace(ReturnUrl)
+        ? Url.Page("AboutMe", new { Reason = "emptyRedirect" })!
+        : ReturnUrl;
 }
