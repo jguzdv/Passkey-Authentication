@@ -50,7 +50,7 @@ internal class CertificateManager(
     private async Task CreateCertificateIfNecessary()
     {
         //Create a new certificate if all certificates will expire in less than the renew threshold
-        var notAfterThreshold = _timeProvider.GetUtcNow().Add(_options.Value.RenewThreshold);
+        var notAfterThreshold = _timeProvider.GetUtcNow().Add(_options.Value.CertificateRenewThreshold);
         if (!_container.GetCertificates().Any(x => x.NotAfter > notAfterThreshold))
         {
             _logger.LogInformation("All certificates will expire soon. Creating a new one.");
@@ -74,10 +74,10 @@ internal class CertificateManager(
 
         // Create the self-signed certificate
         var certificate = request.CreateSelfSigned(
-            _timeProvider.GetUtcNow(), _timeProvider.GetUtcNow().AddYears(1).Add(_options.Value.RenewThreshold));
+            _timeProvider.GetUtcNow(), _timeProvider.GetUtcNow().AddYears(1).Add(_options.Value.CertificateRenewThreshold));
 
         // Export the certificate to a file
-        var certPath = Path.Combine(_options.Value.CertificatePath, $"{certificate.Thumbprint}.pfx");
+        var certPath = Path.Combine(_options.Value.CertificatesPath, $"{certificate.Thumbprint}.pfx");
         var certPassword = _options.Value.CertificatePassword;
         await File.WriteAllBytesAsync(certPath, certificate.Export(X509ContentType.Pfx, certPassword));
 
@@ -88,7 +88,7 @@ internal class CertificateManager(
 
     private void LoadCertificatesIntoContainer()
     {
-        var certificateFiles = Directory.GetFiles(_options.Value.CertificatePath, "*.pfx");
+        var certificateFiles = Directory.GetFiles(_options.Value.CertificatesPath, "*.pfx");
         if (certificateFiles.Length == 0)
         {
             throw new Saml2ConfigurationException("No certificates found in the configured path.");

@@ -103,7 +103,7 @@ services.AddKeyedSingleton("Saml2:SP", new RelyingPartyMetadata());
 services.AddHostedService<SPMetadataLoader>();
 
 services.AddOptions<CertificateOptions>()
-    .Bind(builder.Configuration.GetSection("Saml2:IDP"))
+    .Bind(builder.Configuration.GetSection("Saml2"))
     .ValidateDataAnnotations();
 
 services.AddSingleton<CertificateContainer>();

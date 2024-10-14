@@ -91,7 +91,7 @@ public class SAMLController(
 
 
     [HttpGet("status")]
-    public async Task<IActionResult> Status()
+    public IActionResult Status()
     {
         // TODO: Write out metadata that has been loaded
         return Ok("Statuspage");
@@ -197,7 +197,9 @@ public class SAMLController(
             rpConfig.SignatureValidationCertificates.AddRange(relyingParty.SPSsoDescriptor.SigningCertificates);
             if (relyingParty.SPSsoDescriptor.EncryptionCertificates?.Count() > 0)
             {
-                rpConfig.EncryptionCertificate = relyingParty.SPSsoDescriptor.EncryptionCertificates.LastOrDefault();
+                rpConfig.EncryptionCertificate = relyingParty.SPSsoDescriptor.EncryptionCertificates
+                    .Where(x => x.IsValidLocalTime())
+                    .LastOrDefault();
             }
         }
 

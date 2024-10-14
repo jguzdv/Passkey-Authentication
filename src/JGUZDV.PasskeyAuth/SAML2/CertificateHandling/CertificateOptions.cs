@@ -1,9 +1,9 @@
 namespace JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 
-internal class CertificateOptions
+public class CertificateOptions
 {
-    public required string CertificatePath { get; internal set; }
-    public string? CertificatePassword { get; internal set; }
+    public required string CertificatesPath { get; set; }
+    public string? CertificatePassword { get; set; }
 
-    public TimeSpan CertificateRenewThreshold { get; internal set; } = TimeSpan.FromDays(15);
+    public TimeSpan CertificateRenewThreshold { get; set; } = TimeSpan.FromDays(15);
 }
