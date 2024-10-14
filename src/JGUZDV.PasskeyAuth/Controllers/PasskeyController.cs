@@ -138,7 +138,12 @@ public class PasskeyController(
                 passkeyDescriptor.Credential,
                 [],
                 0,
-                (ctx, cancellationToken) => Task.FromResult(ActiveDirectoryService.IsUserOwnerOfPasskey(new Guid(ctx.UserHandle), passkeyDescriptor)),
+                (ctx, _) => {
+                    var userGuid = new Guid(ctx.UserHandle);
+                    var result = ActiveDirectoryService.IsUserOwnerOfPasskey(userGuid, passkeyDescriptor);
+
+                    return Task.FromResult(result);
+                },
                 ct
             );
 

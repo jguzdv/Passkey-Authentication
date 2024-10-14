@@ -44,7 +44,7 @@ public class IDPMetadataConfiguration : IConfigureOptions<Saml2Configuration>
         saml2.SingleLogoutDestination = _idpDescriptor.IdPSsoDescriptor.SingleLogoutServices.First().Location;
         saml2.SignatureValidationCertificates.AddRange(_idpDescriptor.IdPSsoDescriptor.SigningCertificates);
 
-        saml2.AllowedAudienceUris.Add(_idpDescriptor.EntityId);
+        saml2.AllowedAudienceUris.Add("https://localhost:7002/saml2/");
         saml2.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.None;
     }
 }

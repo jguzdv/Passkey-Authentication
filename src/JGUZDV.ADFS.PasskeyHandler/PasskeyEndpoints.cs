@@ -1,4 +1,4 @@
-﻿using Fido2NetLib;
+using Fido2NetLib;
 using Fido2NetLib.Objects;
 using JGUZDV.Passkey.ActiveDirectory;
 using Microsoft.AspNetCore.Mvc;
@@ -63,7 +63,12 @@ internal class PasskeyEndpoints
                 assertionOptions,
                 passkeyDescriptor.Credential,
                 [], 0,
-                (ctx, _) => Task.FromResult(ActiveDirectoryService.IsUserOwnerOfPasskey(new Guid(ctx.UserHandle), passkeyDescriptor)),
+                (ctx, _) => {
+                    var userGuid = new Guid(ctx.UserHandle);
+                    var result = ActiveDirectoryService.IsUserOwnerOfPasskey(userGuid, passkeyDescriptor);
+
+                    return Task.FromResult(result);
+                },
                 ct);
 
             if (result.ErrorMessage != null)
