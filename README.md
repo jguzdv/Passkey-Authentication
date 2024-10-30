@@ -119,3 +119,5 @@ Since ADFS does not allow primary authentication methods to be 2FA'd in any usef
 ADFS will use the IDP as ClaimProviderTrust and we're injecting all claims neccessary to make ADFS think it's already been authenticated with multiple factors.
 
 ... to be continued
+
+![PKAuth Sequence Diagram](./docs/PasskeyAuth-SequenceDiagram.png)

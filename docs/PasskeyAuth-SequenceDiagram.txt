@@ -1,0 +1,30 @@
+# Generator: https://sequencediagram.org/
+title Passkey Authentication Identity Provider
+
+participant "User Agent" as UA
+participant "Passkey Page" as PKPage
+participant "Passkey API" as PKApi
+participant "SAML" as SAML
+
+UA -> SAML: Present SAMLRequest
+SAML -> SAML: Check User Authentication
+UA <-- SAML: Auth-Challange: Redirect
+
+UA -> PKPage: Browse to Login Page
+activate UA
+activate PKPage
+note over UA,PKPage: some JS involevement here
+PKPage -> PKApi: Query for AssertionOptions
+PKPage <-- PKApi: return WebAuthN Assertion Options
+UA -> UA: Handle Passkey Assertion
+PKPage -> PKApi: Send UA AssertionResponse
+PKApi -> PKApi: Find Passkey Owner
+PKApi -> PKApi: Validate Assertion
+PKPage <-- PKApi: return owner data
+UA <-- PKPage: return login cookie and redirect
+deactivate PKPage
+deactivate UA
+
+UA -> SAML: Present Cookie
+SAML -> SAML: Create SAML Response
+UA <-- SAML: return SAML Response (POST to IDP)

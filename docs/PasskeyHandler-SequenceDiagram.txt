@@ -1,3 +1,4 @@
+# Generator: https://sequencediagram.org/
 title Passkey Authentication Adapter
 
 ADFS -> AuthenticationAdapter: IsAvailableForUser
