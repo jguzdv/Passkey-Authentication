@@ -15,7 +15,9 @@ internal class PasskeyEndpoints
         IFido2 fido2)
     {
         if (passkeyCredentialIds == null || passkeyCredentialIds.Length < 1)
+        {
             return Results.BadRequest("No passkey credential ids provided");
+        }
 
         var allowedCredentials = passkeyCredentialIds
             .Select(x => Base64Url.Decode(x))
@@ -40,7 +42,7 @@ internal class PasskeyEndpoints
             IFido2 fido2,
             TimeProvider timeProvider,
             ILogger<PasskeyEndpoints> logger,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
     {
         try
         {
@@ -59,23 +61,22 @@ internal class PasskeyEndpoints
             }
 
             var result = await fido2.MakeAssertionAsync(
-                assertionResponse,
-                assertionOptions,
-                passkeyDescriptor.Credential,
-                [], 0,
-                (ctx, _) => {
-                    var userGuid = new Guid(ctx.UserHandle);
-                    var result = ActiveDirectoryService.IsUserOwnerOfPasskey(userGuid, passkeyDescriptor);
+                new MakeAssertionParams
+                {
+                    OriginalOptions = assertionOptions,
+                    AssertionResponse = assertionResponse,
+                    StoredPublicKey = passkeyDescriptor.Credential,
 
-                    return Task.FromResult(result);
+                    StoredSignatureCounter = 0,
+                    IsUserHandleOwnerOfCredentialIdCallback = (ctx, _) =>
+                    {
+                        var userGuid = new Guid(ctx.UserHandle);
+                        var result = ActiveDirectoryService.IsUserOwnerOfPasskey(userGuid, passkeyDescriptor);
+
+                        return Task.FromResult(result);
+                    }
                 },
-                ct);
-
-            if (result.ErrorMessage != null)
-            {
-                logger.LogWarning("MakeAssertionAsync returned an error message: {errorMessage}", result.ErrorMessage);
-                return Results.Unauthorized();
-            }
+                cancellationToken);
 
             adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, timeProvider.GetUtcNow());
 
