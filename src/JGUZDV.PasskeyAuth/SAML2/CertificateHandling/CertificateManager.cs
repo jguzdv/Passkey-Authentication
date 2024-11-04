@@ -89,7 +89,7 @@ internal class CertificateManager(
     private void LoadCertificatesIntoContainer()
     {
         var certificateFiles = Directory.GetFiles(_options.Value.CertificatesPath, "*.pfx");
-
+        
         foreach (var certFile in certificateFiles)
         {
             try
