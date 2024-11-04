@@ -17,17 +17,18 @@
     <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.10" />
     <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
 
-    <PackageReference Include="Fido2.AspNet" Version="4.0.0-beta.11" />
-    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.13.1" />
+    <PackageReference Include="Fido2.AspNet" Version="4.0.0-beta.14" />
+    <!-- A bug in ADFS needs us to stay on this version - 4.13 introduces <KeyName>, which will make ADFS fail -->
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.13.2" />
     <PackageReference Include="JGUZDV.AspNetCore.DataProtection" Version="1.1.1" />
     <PackageReference Include="JGUZDV.AspNetCore.Logging" Version="1.0.8" />
   </ItemGroup>
 
   <!-- Build Typescript on build -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.4.3">
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.6.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

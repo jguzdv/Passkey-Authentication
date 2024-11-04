@@ -121,7 +121,7 @@ public class PasskeyController(
         ActiveDirectoryService adService,
         AuthenticatorAssertionRawResponse assertionResponse,
         AssertionOptions assertionOptions,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         //Read users passkey from active directory
         var passkeyDescriptor = adService.GetPasskeyFromCredentialId(assertionResponse.Id);
@@ -133,25 +133,24 @@ public class PasskeyController(
         try
         {
             var assertionResult = await _fido2.MakeAssertionAsync(
-                assertionResponse,
-                assertionOptions,
-                passkeyDescriptor.Credential,
-                [],
-                0,
-                (ctx, _) => {
-                    var userGuid = new Guid(ctx.UserHandle);
-                    var result = ActiveDirectoryService.IsUserOwnerOfPasskey(userGuid, passkeyDescriptor);
+                new MakeAssertionParams
+                {
+                    OriginalOptions = assertionOptions,
+                    AssertionResponse = assertionResponse,
+                    StoredPublicKey = passkeyDescriptor.Credential,
 
-                    return Task.FromResult(result);
+                    StoredSignatureCounter = 0,
+                    IsUserHandleOwnerOfCredentialIdCallback = (ctx, _) =>
+                    {
+                        var userGuid = new Guid(ctx.UserHandle);
+                        var result = ActiveDirectoryService.IsUserOwnerOfPasskey(userGuid, passkeyDescriptor);
+
+                        return Task.FromResult(result);
+                    }
                 },
-                ct
-            );
 
-            if (!string.IsNullOrWhiteSpace(assertionResult.ErrorMessage))
-            {
-                _logger.LogError("Passkey Assertion failed: {errorMessage}", assertionResult.ErrorMessage);
-                return (null, BadRequest("Passkey:AssertionFailed"));
-            }
+                cancellationToken
+            );
         }
         catch (Exception exc)
         {

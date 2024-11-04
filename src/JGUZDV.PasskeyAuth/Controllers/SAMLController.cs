@@ -61,7 +61,10 @@ public class SAMLController(
                 ],
                 Attributes =
                 [
-                    new("urn:oid:1.3.6.1.4.1.5923.1.1.1.6", friendlyName: "eduPersonPrincipalName")
+                    new("role", "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"),
+                    new("sub", "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"),
+                    new("userSid", "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"),
+                    new("upn", "urn:oasis:names:tc:SAML:2.0:attrname-format:basic")
                 ]
             },
             //Organization = new Organization("ZDV", "Zentrum für Datenverarbeitung", "https://www.zdv.uni-mainz.de"),

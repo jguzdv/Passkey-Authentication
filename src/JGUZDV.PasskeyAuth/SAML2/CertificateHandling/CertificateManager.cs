@@ -89,11 +89,7 @@ internal class CertificateManager(
     private void LoadCertificatesIntoContainer()
     {
         var certificateFiles = Directory.GetFiles(_options.Value.CertificatesPath, "*.pfx");
-        if (certificateFiles.Length == 0)
-        {
-            throw new Saml2ConfigurationException("No certificates found in the configured path.");
-        }
-
+        
         foreach (var certFile in certificateFiles)
         {
             try
