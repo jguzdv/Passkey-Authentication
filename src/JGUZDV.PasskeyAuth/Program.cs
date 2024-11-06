@@ -6,6 +6,7 @@ using JGUZDV.Passkey.ActiveDirectory.Extensions;
 using JGUZDV.PasskeyAuth.Configuration;
 using JGUZDV.PasskeyAuth.SAML2;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
+using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 
@@ -103,17 +104,16 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 
 services.AddFido2(builder.Configuration.GetSection("Fido2"));
 
-services.AddKeyedSingleton("Saml2:SP", new RelyingPartyMetadata());
-services.AddHostedService<SPMetadataLoader>();
-
 services.AddOptions<CertificateOptions>()
     .Bind(builder.Configuration.GetSection("Saml2"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+// Certificate management
 services.AddSingleton<CertificateContainer>();
 services.AddHostedService<CertificateManager>();
 
+// Creates options e.g. for "/metadata". Creation and post configuration (PostConfigure) happens scoped on every request!
 services.AddScoped(sp => sp.GetRequiredService<IOptionsSnapshot<Saml2Configuration>>().Value);
 services.AddOptions<Saml2Configuration>()
     .Bind(builder.Configuration.GetSection("Saml2:IDP"))
@@ -125,11 +125,17 @@ services.AddOptions<Saml2Configuration>()
         saml2.SigningCertificate = certificateContainer.GetSignatureCertificate();
     });
 
+// Metadata management
+services.AddSingleton<MetadataContainer>();
+services.AddHostedService<MetadataManager>();
+
+services.AddOptions<RelyingPartyOptions>()
+    .Bind(builder.Configuration.GetSection("Saml2"));       // Binds appsettings->Saml2->RelyingParties
 
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment() && false)
+if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
