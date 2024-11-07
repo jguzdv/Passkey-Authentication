@@ -5,8 +5,8 @@ using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore;
 using ITfoxtec.Identity.Saml2.Schemas;
 using ITfoxtec.Identity.Saml2.Schemas.Metadata;
-using JGUZDV.PasskeyAuth.SAML2;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
+using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -16,15 +16,18 @@ namespace JGUZDV.PasskeyAuth.Controllers;
 
 [Route("saml2/idp")]
 public class SAMLController(
-    Saml2Configuration samlConfig,
-    CertificateContainer certificateContainer,
-    [FromKeyedServices("Saml2:SP")] RelyingPartyMetadata rpMetadata
-    )
-    : ControllerBase
+        Saml2Configuration samlConfig,
+        CertificateContainer certificateContainer,
+        MetadataContainer metadataContainer,
+        ILogger<SAMLController> logger
+    ) : ControllerBase
 {
     private readonly Saml2Configuration _samlConfig = samlConfig;
     private readonly CertificateContainer _certificateContainer = certificateContainer;
-    private readonly RelyingPartyMetadata _rpMetadata = rpMetadata;
+    private readonly MetadataContainer _metadataContainer = metadataContainer;
+
+    private readonly ILogger<SAMLController> _logger = logger;
+
 
     [HttpGet("metadata")]
     public IActionResult GetMetadata()
@@ -112,18 +115,29 @@ public class SAMLController(
             return Redirect("~/?returnUrl=" + returnUrl);
         }
 
-        return CreateSamlResponse(authResult.Principal);
+        return await CreateSamlResponse(authResult.Principal);
     }
 
 
-    private IActionResult CreateSamlResponse(ClaimsPrincipal principal)
+    private async Task<IActionResult> CreateSamlResponse(ClaimsPrincipal principal)
     {
         var httpRequest = Request.ToGenericHttpRequest(validate: true);
         var samlRequest = httpRequest.Binding.ReadSamlRequest(httpRequest, new Saml2AuthnRequest(_samlConfig));
 
-        if (!_rpMetadata.RelyingParties.TryGetValue(samlRequest.Issuer, out var relyingParty))
+        EntityDescriptor relyingParty;
+
+        try
         {
-            throw new BadHttpRequestException("SAML2:RelyingPartyNotFound");
+            // Get an existing reylingParty entry from the metadataContainer, or fetch it if it is not present.
+            relyingParty = await _metadataContainer.GetByEntityId(samlRequest.Issuer);
+        }
+        catch (MetadataLoaderException)
+        {
+            throw new BadHttpRequestException("SAML2:RelyingPartyNotLoaded");
+        }
+        catch (InvalidOperationException)
+        {
+            throw new BadHttpRequestException("SAML2:InvalidEntityId");
         }
 
         var rpConfig = GetRpSaml2Configuration(relyingParty);

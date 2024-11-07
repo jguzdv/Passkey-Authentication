@@ -39,7 +39,10 @@ public class CertificateContainer(ILogger<CertificateContainer> logger)
             throw new InvalidOperationException("No valid certificates are available in the container");
         }
 
-        return _certificates.OrderBy(x => x.NotAfter).First();
+        return _certificates
+            .Where(x => x.IsValidLocalTime())
+            .OrderBy(x => x.NotAfter)
+            .First();
     }
 
     /// <summary>
