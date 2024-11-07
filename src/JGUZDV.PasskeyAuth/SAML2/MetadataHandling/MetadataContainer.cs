@@ -48,7 +48,7 @@ public class MetadataContainer
     /// <exception cref="InvalidOperationException">When the given entityId is unknown.</exception>
     public Task<EntityDescriptor> GetByEntityId(string entityId)
     {
-        var entry = _options.Value.RelyingParties.FirstOrDefault(x => x.EntityId == entityId)
+        var entry = _options.Value.RelyingParties.FirstOrDefault(entry => entry.EntityId == entityId)
             ?? throw new InvalidOperationException($"Unknown entityId {entityId}");
 
         if (!_metadata.TryGetValue(entityId, out var value))
