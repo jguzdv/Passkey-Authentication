@@ -129,6 +129,7 @@ public class SAMLController(
 
         try
         {
+            // Get an existing reylingParty entry from the metadataContainer, or fetch it if it is not present.
             relyingParty = await _metadataContainer.GetByEntityId(samlRequest.Issuer);
         }
         catch (MetadataLoaderException)
