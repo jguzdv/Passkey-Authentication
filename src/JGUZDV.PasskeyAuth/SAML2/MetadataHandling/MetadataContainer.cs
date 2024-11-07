@@ -53,7 +53,7 @@ public class MetadataContainer
 
         if (!_metadata.TryGetValue(entityId, out var value))
         {
-            value = AddOrReplace(entityId, LoadMetadataAsync(entityId, entry));
+            value = AddOrReplace(entityId, LoadMetadataAsync(entry));
         }
 
         return value;
@@ -68,7 +68,7 @@ public class MetadataContainer
     /// <param name="entry"></param>
     /// <returns></returns>
     /// <exception cref="MetadataLoaderException"></exception>
-    private async Task<EntityDescriptor> LoadMetadataAsync(string entityId, RelyingPartyEntry entry)
+    private async Task<EntityDescriptor> LoadMetadataAsync(RelyingPartyEntry entry)
     {
         var entityDescriptor = new EntityDescriptor();
 
@@ -76,10 +76,12 @@ public class MetadataContainer
         {
             await entityDescriptor.ReadSPSsoDescriptorFromUrlAsync(_httpClientFactory, new Uri(entry.MetadataUrl));
 
-            if (entityDescriptor.EntityId != entityId)
+            // This is for a very unlikely case: The configured entityId does not match to the entityId in
+            // the EntityDescriptor. Should not happen, but who knows...
+            if (entityDescriptor.EntityId != entry.EntityId)
             {
                 _logger.LogError("The configured entityId is not equal to the entity id in EntityDescriptor. " +
-                    "Given EntityId: {entityId}, MetadataUrl: {metadataUrl}", entityId, entry.MetadataUrl);
+                    "Given EntityId: {entityId}, MetadataUrl: {metadataUrl}", entry.EntityId, entry.MetadataUrl);
 
                 throw new MetadataLoaderException("Configuration error...");
             }
@@ -90,7 +92,7 @@ public class MetadataContainer
 
             // This is essential, so on a new request a new Task will be created. If we miss this,
             // every call on GetByEntityId(...) will get the Task with this error/exception result.
-            _metadata.Remove(entityId);
+            _metadata.Remove(entry.EntityId);
 
             throw new MetadataLoaderException("Unexpected exception when loading metadata.", ex);
         }
