@@ -8,12 +8,12 @@ namespace JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 /// SAML IdP or Saml ServiceProvider/RelyingParty. @see https://en.wikipedia.org/wiki/SAML_metadata
 /// The property _metadata is used to store EntityDescriptor's. The dictionary uses EntityId's as
 /// keys, and takes a Task that determines an EntityDescriptor. We do not store the EntityDescriptor
-/// directly, but store the Task that runs asynchronously to prevent GetByEntityId(...) running
-/// multiple times on multiple auth requests.
+/// directly, but store the Task that runs asynchronously, so if GetByEntityId(...) is called multiple
+/// times, and fetching an EntityDescriptor is not yet completed, all threads wait for the same Task.
 /// </summary>
 public class MetadataContainer
 {
-    // Used to store EntityDescriptor's in a EntityId -> Task to determine EntityDescriptor table.
+    // Stores EntityId -> Task. The Task tries to fetch an EntityDescriptor.
     private readonly Dictionary<string, Task<EntityDescriptor>> _metadata = [];
 
     // All relying parties we know, needed to validate the saml authn request.
