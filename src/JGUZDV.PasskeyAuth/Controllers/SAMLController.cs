@@ -139,10 +139,6 @@ public class SAMLController(
         {
             throw new BadHttpRequestException("SAML2:InvalidEntityId");
         }
-        catch (Exception)
-        {
-            throw;
-        }
 
         var rpConfig = GetRpSaml2Configuration(relyingParty);
         var saml2AuthnRequest = new Saml2AuthnRequest(rpConfig);
