@@ -13,7 +13,7 @@ namespace JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 /// </summary>
 public class MetadataContainer
 {
-    // Stores EntityId -> Task. The Task tries to fetch an EntityDescriptor.
+    // Stores EntityId -> Task. The Task tries to fetch an EntityDescriptor for the given EntityId.
     private readonly Dictionary<string, Task<EntityDescriptor>> _metadata = [];
 
     // All relying parties we know, needed to validate the saml authn request.
