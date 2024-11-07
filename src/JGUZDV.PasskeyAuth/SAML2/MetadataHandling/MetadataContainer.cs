@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 namespace JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 
 /// <summary>
-/// Encapsulates logic an data to handle EntityDescriptor's. An EntityDescriptor describes a
+/// Encapsulates logic/data to handle EntityDescriptor's. An EntityDescriptor describes a
 /// SAML IdP or Saml ServiceProvider/RelyingParty. @see https://en.wikipedia.org/wiki/SAML_metadata
 /// The property _metadata is used to store EntityDescriptor's. The dictionary uses EntityId's as
 /// keys, and takes a Task that determines an EntityDescriptor. We do not store the EntityDescriptor

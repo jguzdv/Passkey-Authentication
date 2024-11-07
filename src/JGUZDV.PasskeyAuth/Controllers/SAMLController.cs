@@ -5,7 +5,6 @@ using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore;
 using ITfoxtec.Identity.Saml2.Schemas;
 using ITfoxtec.Identity.Saml2.Schemas.Metadata;
-using JGUZDV.PasskeyAuth.SAML2;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 using Microsoft.AspNetCore.Authentication;
