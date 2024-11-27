@@ -156,7 +156,7 @@ public class SAMLController(
         }
     }
 
-    private IActionResult LoginPostResponse(Saml2Id inResponseTo, Saml2StatusCodes status, string relayState, EntityDescriptor relyingParty, Saml2Configuration rpConfig, IEnumerable<Claim>? claims)
+    private static IActionResult LoginPostResponse(Saml2Id inResponseTo, Saml2StatusCodes status, string relayState, EntityDescriptor relyingParty, Saml2Configuration rpConfig, IEnumerable<Claim>? claims)
     {
         var responsebinding = new Saml2PostBinding
         {
@@ -173,12 +173,13 @@ public class SAMLController(
         if (status == Saml2StatusCodes.Success && claims != null)
         {
             saml2AuthnResponse.ClaimsIdentity = new ClaimsIdentity(claims, "FIDO2", "sub", "role");
+            saml2AuthnResponse.NameId = new Saml2NameIdentifier(claims.First(x => x.Type == "sub").Value, NameIdentifierFormats.Unspecified);
 
             var token = saml2AuthnResponse.CreateSecurityToken(
                 relyingParty.EntityId,
                 subjectConfirmationLifetime: 5,
-                // TODO: there seems to be no ac:class for FIDO2 currently
-                authnContext: new Uri("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"),
+                // TODO: there seems to be no ac:class for FIDO2 currently, so we made one up
+                authnContext: new Uri("urn:oasis:names:tc:SAML:2.0:ac:classes:FIDO2Passkey"),
                 issuedTokenLifetime: 60
                 );
         }
