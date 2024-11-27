@@ -11,9 +11,7 @@ const autostartPasskey = !!document.body.getAttribute("data-passkey-autostart");
 if (autostartPasskey) {
     await handlePasskeyAuth(passkeyUrl);
 }
-else {
-    document.getElementById("passkey-initiator").addEventListener("click", () => {
-        handlePasskeyAuth(passkeyUrl);
-    });
-}
+document.getElementById("passkey-initiator").addEventListener("click", () => {
+    handlePasskeyAuth(passkeyUrl);
+});
 //# sourceMappingURL=app.js.map
