@@ -102,7 +102,14 @@ public class PasskeyController(
         var result = new List<(string Type, string Value)>
         {
             ("amr", "FIDO2Passkey"),
+            ("amr", "MFA"),
+            ("mfa_auth_time", _timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture))
         };
+
+        return result;
+
+        // TODO: This code path has been deactivated on purpose.
+        // We'll reconsider the logic behind this eventually.
 
         var regardAsMultiFactorAuthentication =
             passkey.IsBackupEligible == false || // We assume non backupable passkeys are hardware-tokens, that are considered 2FA
