@@ -126,23 +126,6 @@ public class ActiveDirectoryService
         }
     }
 
-    public void UpdateUserLastLogin(string userDN, DateTimeOffset lastUsageTime)
-    {
-        try
-        {
-            var userEntry = new DirectoryEntry($"LDAP://{_adOptions.Value.Server}/{userDN}");
-            var lastLogon = lastUsageTime.ToFileTime();
-
-            userEntry.Properties["lastLogonTimestamp"].SetLargeInteger(lastLogon);
-            // TODO: Set lastLogon as well?
-
-            userEntry.CommitChanges();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to update lastLogonTimestamp for {userDN}", userDN);
-        }
-    }
 
     public static bool IsUserOwnerOfPasskey(Guid ownerHandle, PasskeyDescriptor passkey)
     {
