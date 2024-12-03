@@ -172,7 +172,6 @@ public class PasskeyController(
         }
 
         adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, now);
-        adService.UpdateUserLastLogin(passkeyDescriptor.Owner.DistinguishedName, now);
 
         return (passkeyDescriptor, null);
     }
