@@ -11,6 +11,7 @@
 
     <NoWarn>CA1416</NoWarn>
     <NeutralLanguage>de</NeutralLanguage>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
   
   <ItemGroup>
