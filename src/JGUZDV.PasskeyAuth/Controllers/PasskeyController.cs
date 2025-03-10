@@ -103,7 +103,8 @@ public class PasskeyController(
         {
             ("amr", "FIDO2Passkey"),
             ("amr", "MFA"),
-            ("mfa_auth_time", _timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture))
+            ("mfa_auth_time", _timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture)),
+            ("fido2_cred_id", Base64Url.Encode(passkey.CredentialId))
         };
 
         return result;
