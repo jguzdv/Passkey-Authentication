@@ -1,29 +1,21 @@
 using ITfoxtec.Identity.Saml2;
+
 using JGUZDV.ActiveDirectory;
 using JGUZDV.ActiveDirectory.Configuration;
+using JGUZDV.AspNetCore.Hosting;
 using JGUZDV.Passkey.ActiveDirectory;
-using JGUZDV.Passkey.ActiveDirectory.Extensions;
 using JGUZDV.PasskeyAuth.Configuration;
-using JGUZDV.PasskeyAuth.SAML2;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 
+using BlazorInteractivityModes = JGUZDV.AspNetCore.Hosting.Components.BlazorInteractivityModes;
 
-var builder = WebApplication.CreateBuilder(args);
+
+var builder = JGUZDVHostApplicationBuilder.CreateWebHost(args, BlazorInteractivityModes.DisableBlazor);
 var services = builder.Services;
-
-builder.UseJGUZDVLogging();
-
-if (builder.Environment.IsProduction())
-{
-    services.AddDistributedSqlServerCache(opt =>
-    {
-        builder.Configuration.Bind("DistributedCache", opt);
-    });
-    builder.AddJGUZDVDataProtection();
-}
 
 services.AddOptions<PasskeyAuthOptions>()
     .BindConfiguration("PasskeyAuth")
@@ -81,16 +73,18 @@ services.AddOptions<ClaimProviderOptions>()
 
 services.AddHttpClient();
 services.AddTransient((sp) => TimeProvider.System);
-services.AddLocalization();
-services.AddRequestLocalization(opt =>
-{
-    opt.SupportedCultures = [new("de-de"), new("en-US")];
-    opt.SupportedUICultures = [.. opt.SupportedCultures];
-    opt.DefaultRequestCulture = new(opt.SupportedCultures.First());
-});
 
-services.AddControllers();
-services.AddRazorPages();
+
+//services.AddLocalization();
+//services.AddRequestLocalization(opt =>
+//{
+//    opt.SupportedCultures = [new("de-de"), new("en-US")];
+//    opt.SupportedUICultures = [.. opt.SupportedCultures];
+//    opt.DefaultRequestCulture = new(opt.SupportedCultures.First());
+//});
+
+//services.AddControllers();
+//services.AddRazorPages();
 services.AddSession();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -160,4 +154,3 @@ app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
-

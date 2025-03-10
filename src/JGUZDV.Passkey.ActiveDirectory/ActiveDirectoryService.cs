@@ -68,10 +68,10 @@ public class ActiveDirectoryService
 
         var owner = GetPasskeyOwnerInfo(userResult);
 
-        return GetPasskeyDescriptor(passkey, owner);
+        return GetPasskeyDescriptor(credentialId, passkey, owner);
     }
 
-    private static PasskeyDescriptor GetPasskeyDescriptor(SearchResult passkey, PasskeyOwner owner)
+    private static PasskeyDescriptor GetPasskeyDescriptor(byte[] credentialId, SearchResult passkey, PasskeyOwner owner)
     {
         var distinguishedName = (string)passkey.Properties["distinguishedName"][0];
         var credential = (byte[])passkey.Properties["userCertificate"][0];
@@ -89,12 +89,13 @@ public class ActiveDirectoryService
             
 
         return new(
-            distinguishedName,
-            credential,
-            new Guid(aaguid),
-            isBackupEligible,
-            owner,
-            passkey.GetDirectoryEntry()
+            DistinguishedName: distinguishedName,
+            CredentialId: credentialId,
+            Credential: credential,
+            Aaguid: new Guid(aaguid),
+            IsBackupEligible: isBackupEligible,
+            Owner: owner,
+            DirectoryEntry: passkey.GetDirectoryEntry()
         );
     }
 
