@@ -70,8 +70,13 @@ public class PasskeyController(
             return errorResult;
         }
 
+        if (passkeyDescriptor == null) {
+            throw new InvalidOperationException("No error was returned, but a passkey discriptor still was null");
+        }
+
         var identity = CreateClaimsIdentity(passkeyDescriptor!, claimProvider);
 
+        _logger.LogInformation("Passkey logon success: {Passkey}", passkeyDescriptor!.DistinguishedName);
         await HttpContext.SignInAsync(
             new ClaimsPrincipal(identity)
         );
