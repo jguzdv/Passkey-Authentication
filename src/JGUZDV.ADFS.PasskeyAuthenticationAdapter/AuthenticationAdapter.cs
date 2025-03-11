@@ -1,15 +1,16 @@
-using JGUZDV.ADFS.PasskeyAuthenticationAdapter.Extensions;
-using Microsoft.IdentityServer.Web.Authentication.External;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Web;
+
+using JGUZDV.ADFS.PasskeyAuthenticationAdapter.Extensions;
+
+using Microsoft.IdentityServer.Web.Authentication.External;
 
 namespace JGUZDV.ADFS.PasskeyAuthenticationAdapter
 {
@@ -115,11 +116,9 @@ namespace JGUZDV.ADFS.PasskeyAuthenticationAdapter
             var passkeyValidationResult = ValidatePasskeyAssertion(context, proofData, passkeyClaims);
             if (passkeyValidationResult)
             {
-                claims = new[]
-                {
-                    // Return the authentication method claim mentioned in metadata, indicating the particulate authentication method has been used successfully.
-                    new Claim(ClaimTypes.AuthenticationMethod, Metadata.AuthenticationMethods.First())
-                };
+                // Add the authentication method claim mentioned in metadata, indicating the particulate authentication method has been used successfully.
+                passkeyClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, Metadata.AuthenticationMethods.First()));
+                claims = passkeyClaims.ToArray();
 
                 return null;
             }
@@ -221,14 +220,14 @@ namespace JGUZDV.ADFS.PasskeyAuthenticationAdapter
 
             if(response.StatusCode == HttpStatusCode.OK)
             {
-                var responseStream = response.GetResponseStream();
-                var responseBytes = new byte[responseStream.Length];
-
-                responseStream.Read(responseBytes, 0, (int)responseStream.Length);
-                var responseBody = Encoding.UTF8.GetString(responseBytes);
-
+                using var stream = response.GetResponseStream();
+                using var reader = new StreamReader(stream, Encoding.UTF8);
+                
+                var responseString = reader.ReadToEnd();
+                
                 var equalSign = new char[] { '=' };
-                foreach (var line in responseBody.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+                var newLines = new char[] { '\r', '\n' };
+                foreach (var line in responseString.Split(newLines, StringSplitOptions.RemoveEmptyEntries))
                 {
                     var elements = line.Trim().Split(equalSign, 2, StringSplitOptions.RemoveEmptyEntries);
                     if(elements.Length != 2)
@@ -248,7 +247,9 @@ namespace JGUZDV.ADFS.PasskeyAuthenticationAdapter
         private static void AppendUrlEncoded(StringBuilder sb, string name, string value)
         {
             if (sb.Length != 0)
+            {
                 sb.Append("&");
+            }
 
             sb.Append(HttpUtility.UrlEncode(name));
             sb.Append("=");
