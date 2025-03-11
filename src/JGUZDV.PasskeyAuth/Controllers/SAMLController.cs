@@ -156,7 +156,7 @@ public class SAMLController(
         }
     }
 
-    private static IActionResult LoginPostResponse(Saml2Id inResponseTo, Saml2StatusCodes status, string relayState, EntityDescriptor relyingParty, Saml2Configuration rpConfig, IEnumerable<Claim>? claims)
+    private IActionResult LoginPostResponse(Saml2Id inResponseTo, Saml2StatusCodes status, string relayState, EntityDescriptor relyingParty, Saml2Configuration rpConfig, IEnumerable<Claim>? claims)
     {
         var responsebinding = new Saml2PostBinding
         {
@@ -182,8 +182,11 @@ public class SAMLController(
                 authnContext: new Uri("urn:oasis:names:tc:SAML:2.0:ac:classes:FIDO2Passkey"),
                 issuedTokenLifetime: 60
                 );
+
+            _logger.LogInformation("Created SAML token for {NameId}.", saml2AuthnResponse.NameId.Value);
         }
 
+        
         return responsebinding.Bind(saml2AuthnResponse).ToActionResult();
     }
 
