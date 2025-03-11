@@ -2,6 +2,9 @@ using Fido2NetLib;
 using Fido2NetLib.Objects;
 using JGUZDV.Passkey.ActiveDirectory;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+
+using System;
 using System.Runtime.Versioning;
 using System.Text.Json;
 
@@ -80,7 +83,15 @@ internal class PasskeyEndpoints
 
             adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, timeProvider.GetUtcNow());
 
-            return Results.Ok();
+            var mfaAuthTime = timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture);
+            var fido2CredId = Base64Url.Encode(passkeyDescriptor.CredentialId);
+
+            return Results.Ok($"""
+                amr=FIDO2Passkey
+                amr=MFA
+                mfa_auth_time={mfaAuthTime}
+                fido2_cred_id={fido2CredId}
+                """);
         }
         catch (Exception ex)
         {
@@ -88,4 +99,6 @@ internal class PasskeyEndpoints
             return Results.Unauthorized();
         }
     }
+
+    private record HttpClaim(string Type, string Value);
 }

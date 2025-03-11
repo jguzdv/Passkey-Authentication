@@ -1,9 +1,11 @@
 using JGUZDV.ADFS.PasskeyAuthenticationAdapter.Extensions;
 using Microsoft.IdentityServer.Web.Authentication.External;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using System.Text;
@@ -109,7 +111,8 @@ namespace JGUZDV.ADFS.PasskeyAuthenticationAdapter
                 throw new InvalidOperationException("TryEndAuthentication [PasskeyAuthenticationAdapter]: no proof data received");
             }
 
-            var passkeyValidationResult = ValidatePasskeyAssertion(context, proofData);
+            var passkeyClaims = new List<Claim>();
+            var passkeyValidationResult = ValidatePasskeyAssertion(context, proofData, passkeyClaims);
             if (passkeyValidationResult)
             {
                 claims = new[]
@@ -188,7 +191,7 @@ namespace JGUZDV.ADFS.PasskeyAuthenticationAdapter
             }
         }
 
-        private bool ValidatePasskeyAssertion(IAuthenticationContext context, IProofData proofData)
+        private bool ValidatePasskeyAssertion(IAuthenticationContext context, IProofData proofData, IList<Claim> passkeyClaims)
         {
             var assertionOptions = context.GetAssertionOptions();
             var assertionResponse = proofData.Properties["assertionResponse"] as string;
@@ -215,7 +218,31 @@ namespace JGUZDV.ADFS.PasskeyAuthenticationAdapter
             }
 
             using var response = (HttpWebResponse)httpRequest.GetResponse();
-            return response.StatusCode == HttpStatusCode.OK;
+
+            if(response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseStream = response.GetResponseStream();
+                var responseBytes = new byte[responseStream.Length];
+
+                responseStream.Read(responseBytes, 0, (int)responseStream.Length);
+                var responseBody = Encoding.UTF8.GetString(responseBytes);
+
+                var equalSign = new char[] { '=' };
+                foreach (var line in responseBody.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var elements = line.Trim().Split(equalSign, 2, StringSplitOptions.RemoveEmptyEntries);
+                    if(elements.Length != 2)
+                    {
+                        continue;
+                    }
+
+                    passkeyClaims.Add(new Claim(elements[0].Trim(), elements[1].Trim()));
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         private static void AppendUrlEncoded(StringBuilder sb, string name, string value)
