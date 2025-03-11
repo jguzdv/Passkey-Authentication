@@ -10,6 +10,7 @@ builder.Logging.AddEventLog(opt =>
 });
 
 builder.Services.AddWindowsService();
+builder.Services.AddTransient((_) => TimeProvider.System);
 builder.Services.AddFido2(builder.Configuration.GetSection("Fido2"));
 builder.Services.AddPasskeyActiveDirectoryServices("ActiveDirectory");
 
