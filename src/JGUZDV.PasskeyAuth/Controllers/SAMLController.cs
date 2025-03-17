@@ -19,14 +19,14 @@ public class SAMLController(
         Saml2Configuration samlConfig,
         CertificateContainer certificateContainer,
         MetadataContainer metadataContainer,
-        ILogger<SAMLController> logger
+        ILogger<SecurityAudit> auditLogger
     ) : ControllerBase
 {
     private readonly Saml2Configuration _samlConfig = samlConfig;
     private readonly CertificateContainer _certificateContainer = certificateContainer;
     private readonly MetadataContainer _metadataContainer = metadataContainer;
 
-    private readonly ILogger<SAMLController> _logger = logger;
+    private readonly ILogger<SecurityAudit> _auditLogger = auditLogger;
 
 
     [HttpGet("metadata")]
@@ -183,7 +183,7 @@ public class SAMLController(
                 issuedTokenLifetime: 60
                 );
 
-            _logger.LogInformation("Created SAML token for {NameId}.", saml2AuthnResponse.NameId.Value);
+            _auditLogger.LogInformation("A SAML2 token was created for {NameId}.", saml2AuthnResponse.NameId.Value);
         }
 
         

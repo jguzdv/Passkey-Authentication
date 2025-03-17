@@ -3,6 +3,7 @@ using Fido2NetLib.Objects;
 using JGUZDV.ActiveDirectory.Claims;
 using JGUZDV.Passkey.ActiveDirectory;
 using JGUZDV.PasskeyAuth.Configuration;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -18,7 +19,7 @@ public class PasskeyController(
     IFido2 _fido2,
     TimeProvider _timeProvider,
     IOptions<PasskeyAuthOptions> _options,
-    ILogger<PasskeyController> _logger
+    ILogger<SecurityAudit> _auditLogger
     ) : ControllerBase
 {
     [HttpGet()]
@@ -76,10 +77,11 @@ public class PasskeyController(
 
         var identity = CreateClaimsIdentity(passkeyDescriptor!, claimProvider);
 
-        _logger.LogInformation("Passkey logon success: {Passkey}", passkeyDescriptor!.DistinguishedName);
         await HttpContext.SignInAsync(
             new ClaimsPrincipal(identity)
         );
+
+        _auditLogger.LogInformation("A passkey logon was successful. User: {User}, Passkey: {Passkey}", passkeyDescriptor.Owner.ObjectGuid, passkeyDescriptor.DistinguishedName);
 
         if (Url.IsLocalUrl(response.ReturnUrl))
         {
@@ -167,7 +169,7 @@ public class PasskeyController(
         }
         catch (Exception exc)
         {
-            _logger.LogError(exc, "Passkey Assertion failed.");
+            _auditLogger.LogWarning(exc, "A passkey logon failed. User: {User}, Passkey: {Passkey}", passkeyDescriptor.Owner.ObjectGuid, passkeyDescriptor.DistinguishedName);
             return (null, BadRequest("Passkey:AssertionFailed"));
         }
 
