@@ -1,12 +1,13 @@
-using Fido2NetLib;
-using Fido2NetLib.Objects;
-using JGUZDV.Passkey.ActiveDirectory;
-using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
-
-using System;
 using System.Runtime.Versioning;
 using System.Text.Json;
+
+using Fido2NetLib;
+using Fido2NetLib.Objects;
+
+using JGUZDV.Passkey.ActiveDirectory;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace JGUZDV.ADFS.PasskeyHandler;
 
