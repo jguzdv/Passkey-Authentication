@@ -14,7 +14,8 @@ function arrayBufferToBase64Url(arrayBuffer) {
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 ;
-function getNavigatorCredential(publicKeyOptions) {
+function getNavigatorCredential(publicKeyOptions, statusCallback) {
+    statusCallback("GetAssertion");
     return new Promise((resolve, reject) => {
         navigator.credentials
             .get({
@@ -27,12 +28,14 @@ function getNavigatorCredential(publicKeyOptions) {
             resolve(credential);
         })
             .catch((error) => {
+            statusCallback("GetAssertionError");
             reject(error);
         });
     });
 }
 ;
-function jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson) {
+function jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson, statusCallback) {
+    statusCallback("ParseAssertionOptions");
     let publicKeyOptions = JSON.parse(publicKeyOptionsJson);
     let assertionOptions = {
         challenge: base64UrlToUint8Array(publicKeyOptions.challenge),
@@ -54,8 +57,9 @@ function jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson) {
     return assertionOptions;
 }
 ;
-function convertPublicKeyCredentialToJson(publicKeyCredential) {
+function convertPublicKeyCredentialToJson(publicKeyCredential, statusCallback) {
     const response = publicKeyCredential.response;
+    statusCallback("ConvertAssertionResponse");
     let publicKeyCredentialJson = {
         id: publicKeyCredential.id,
         type: publicKeyCredential.type,
@@ -70,10 +74,10 @@ function convertPublicKeyCredentialToJson(publicKeyCredential) {
     return JSON.stringify(publicKeyCredentialJson);
 }
 ;
-export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson) {
-    let publicKeyOptions = jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson);
-    let publicKeyCredential = await getNavigatorCredential(publicKeyOptions);
-    return convertPublicKeyCredentialToJson(publicKeyCredential);
+export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson, statusCallback) {
+    let publicKeyOptions = jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson, statusCallback);
+    let publicKeyCredential = await getNavigatorCredential(publicKeyOptions, statusCallback);
+    return convertPublicKeyCredentialToJson(publicKeyCredential, statusCallback);
 }
 ;
 export function isBrowserCapable() {

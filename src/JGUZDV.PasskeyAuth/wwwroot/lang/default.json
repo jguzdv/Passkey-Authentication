@@ -1,0 +1,12 @@
+{
+  "CapabilityMissing": "Ihr Browser unterstützt kein WebAuthN. Daher ist eine Anmeldung mit FIDO2 Passkey nicht möglich.",
+
+  "FetchAssertionOptions": "Passkey-Authentifizierung wird vorbereitet (Abruf vom Server)",
+  "ParseAssertionOptions": "Passkey-Authentifizierung wird gelesen (vearbeite Server-Antwort)",
+
+  "GetAssertion": "Warte auf Benutzerinteraktion ...",
+  "GetAssertionError": "Benutzerinteraktion fehlgeschlagen.",
+
+  "ConvertAssertionResponse": "Verarbeite Passkey-Authentifizierung",
+  "SubmitAssertionResponse": "Sende Passkey-Authentifizierung"
+}
