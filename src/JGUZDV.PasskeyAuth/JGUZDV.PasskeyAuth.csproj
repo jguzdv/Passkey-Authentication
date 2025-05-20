@@ -43,4 +43,25 @@
   <Target Name="UpdateFIDOMetadata" BeforeTargets="PrepareForPublish">
     <Exec Command="pwsh.exe -ExecutionPolicy Bypass -Command &quot;&amp; ../scripts/Update-Metadata.ps1&quot;" />
   </Target>
+
+
+  <!-- https://github.com/microsoft/TypeScript/issues/60538#issuecomment-2884509647 -->
+  <Target Name="FixTypescriptCompileDependencies" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <PrepareForBuildDependsOn>
+        FindConfigFiles;
+        CompileTypeScript;
+        CompileTypeScriptWithTSConfig;
+        GetTypeScriptOutputForPublishing;
+        $(PrepareForBuildDependsOn)
+      </PrepareForBuildDependsOn>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="RemoveDuplicateTypeScriptOutputs" AfterTargets="GetTypeScriptOutputForPublishing">
+    <Message Importance="High" Text="GeneratedJavaScript files are: @(GeneratedJavaScript)" />
+    <ItemGroup>
+      <Content Remove="@(GeneratedJavaScript)" />
+    </ItemGroup>
+  </Target>
 </Project>

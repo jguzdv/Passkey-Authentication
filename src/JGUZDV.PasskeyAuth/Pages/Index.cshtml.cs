@@ -10,12 +10,18 @@ public class IndexModel : PageModel
         AutoInitPasskey = environment.IsProduction();
     }
 
+    public IActionResult OnGet()
+    {
+        if (User.Identities.Any(x => x.IsAuthenticated) && string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            return RedirectToPage("Info");
+        }
+
+        return Page();
+    }
+
     [BindProperty(SupportsGet = true)]
     public string? ReturnUrl { get; set; }
 
-
     public bool AutoInitPasskey { get; }
-    public string RedirectUrl => string.IsNullOrWhiteSpace(ReturnUrl)
-        ? Url.Page("AboutMe", new { Reason = "emptyRedirect" })!
-        : ReturnUrl;
 }

@@ -72,7 +72,7 @@ public class PasskeyController(
         }
 
         if (passkeyDescriptor == null) {
-            throw new InvalidOperationException("No error was returned, but a passkey discriptor still was null");
+            throw new InvalidOperationException("No error was returned, but a passkey descriptor still was null");
         }
 
         var identity = CreateClaimsIdentity(passkeyDescriptor!, claimProvider);
@@ -88,7 +88,7 @@ public class PasskeyController(
             return Redirect(response.ReturnUrl);
         }
 
-        throw new BadHttpRequestException("Request:ReturnUrlInvalid");
+        return RedirectToPage("/Self");
     }
 
 
