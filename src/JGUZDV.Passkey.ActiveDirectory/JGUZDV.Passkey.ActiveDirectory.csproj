@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 
 		<NoWarn>MSB3305</NoWarn>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 
 	<ItemGroup>
