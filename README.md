@@ -1,14 +1,15 @@
 # About this Solution
 
-This solution provides two different ways to enable passkey authentication within an SSO structure that does not directly support it (namely Microsoft ADFS).
+This solution provides two different ways to enable passkey authentication within an SSO structure that does not natively support it.  
+One variant is to have an SAML2 IDP that uses passkeys as primary authentication, the other is to use ADFS with a custom authentication adapter and a local webserver to handle the passkey authentication flow.
 
 ## Prerequisites
 
-You have an ldap containing the passkey information.
-The information is saved in [ldap attributes](./docs/LdapSchema.md) as proposed [here](https://github.com/passwordless-lib/fido2-net-lib/blob/ActiveDirectory/fido2-net-lib/ActiveDirectoryStore.cs).
-The passkey base library used is [fido2-net-lib](https://github.com/passwordless-lib/fido2-net-lib)
+- You have an ldap containing the passkey information.
+- The information is saved in [ldap attributes](./docs/LdapSchema.md) as proposed [here](https://github.com/passwordless-lib/fido2-net-lib/blob/ActiveDirectory/fido2-net-lib/ActiveDirectoryStore.cs).  
+  The passkey base library used is [fido2-net-lib](https://github.com/passwordless-lib/fido2-net-lib)  
 
-## MFA with FIDO2 Passkey in ADFS
+## MFA with FIDO2 Passkey in ADFS as custom authentication adapter
 
 The extension interface of ADFS is rather limited and does not allow for easy integration of passkey authentication.
 It's however possible to use a local (as in localhost on the ADFS server) webserver to handle the passkey authentication in a modern and more flexible way.
@@ -113,7 +114,7 @@ Start-Service -Name ADFSPasskeyHandler
 
 
 
-## Passkey as primary authentication bypassing MFA
+## Passkey as SAML2 IDP primary authentication method
 
 Since ADFS does not allow primary authentication methods to be 2FA'd in any useful way, we are moving the passkey authentication into a SAML2 IDP, that'll have it's own webpage and logic, allowing anyone authenticating with a passkey to use it as two-factor authentication in a single step.
 ADFS will use the IDP as ClaimProviderTrust and we're injecting all claims neccessary to make ADFS think it's already been authenticated with multiple factors.
