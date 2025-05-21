@@ -41,9 +41,9 @@ public class AuthenticationAdapter : IAuthenticationAdapter
             throw new InvalidDataException("OnAuthenticationPipelineLoad [PasskeyAuthenticationAdapter]: BaseUrl was null or invalid");
         }
 
-        if (string.IsNullOrWhiteSpace(_config.LdapServer))
+        if (string.IsNullOrWhiteSpace(_config.LdapServer) && string.IsNullOrWhiteSpace(_config.DomainName))
         {
-            throw new InvalidDataException("OnAuthenticationPipelineLoad [PasskeyAuthenticationAdapter]: LdapServer was null or empty");
+            throw new InvalidDataException("OnAuthenticationPipelineLoad [PasskeyAuthenticationAdapter]: LdapServer AND DomainName was null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(_config.SearchBaseDN))
@@ -157,7 +157,9 @@ public class AuthenticationAdapter : IAuthenticationAdapter
             return;
         }
 
-        var passkeyIds = ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.LdapServer!);
+        var passkeyIds = _config.DomainName != null
+            ? ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.DomainName, _config.LdapPort)
+            ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.LdapServer!);
         if (passkeyIds?.Any() == true)
         {
             context.SavePasskeyCredentialIds(passkeyIds);

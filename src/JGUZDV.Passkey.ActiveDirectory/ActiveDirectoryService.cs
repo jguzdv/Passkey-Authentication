@@ -1,6 +1,9 @@
 using System.DirectoryServices;
+using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.Versioning;
+
 using JGUZDV.Passkey.ActiveDirectory.Extensions;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -12,10 +15,24 @@ public class ActiveDirectoryService
     private readonly IOptions<ActiveDirectoryOptions> _adOptions;
     private readonly ILogger<ActiveDirectoryService> _logger;
 
+    private readonly string? _ldapServer;
+
     public ActiveDirectoryService(IOptions<ActiveDirectoryOptions> adOptions, ILogger<ActiveDirectoryService> logger)
     {
         _adOptions = adOptions;
         _logger = logger;
+
+        if(!string.IsNullOrWhiteSpace(_adOptions.Value.DomainName))
+        {
+            var ctx = new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName);
+            var domain = Domain.GetDomain(ctx);
+
+            _ldapServer = domain.PdcRoleOwner.Name;
+        }
+        else
+        {
+            _ldapServer = _adOptions.Value.LdapServer;
+        }
     }
 
     public PasskeyDescriptor? GetPasskeyFromCredentialId(byte[] credentialId)
@@ -23,7 +40,7 @@ public class ActiveDirectoryService
         var credentialString = "\\" + BitConverter.ToString(credentialId).Replace("-", "\\");
 
         using var passkeySearcher = new DirectorySearcher(
-            new DirectoryEntry($"LDAP://{_adOptions.Value.Server}/{_adOptions.Value.BaseOU}"),
+            new DirectoryEntry($"LDAP://{_ldapServer}/{_adOptions.Value.BaseOU}"),
             $"(&(objectClass=fIDOAuthenticatorDevice)(fIDOAuthenticatorCredentialId={credentialString}))",
             ["distinguishedName", "userCertificate", "fIDOAuthenticatorAaguid", "flags"],
             SearchScope.Subtree);
@@ -39,7 +56,7 @@ public class ActiveDirectoryService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to search for passkey with credentialId {credentialId}, on {server} in {baseOu}", credentialString, _adOptions.Value.Server, _adOptions.Value.BaseOU);
+            _logger.LogError(ex, "Failed to search for passkey with credentialId {credentialId}, on {server} in {baseOu}", credentialString, _ldapServer, _adOptions.Value.BaseOU);
             return null;
         }
 
@@ -55,7 +72,7 @@ public class ActiveDirectoryService
         var userDN = passkeyDN.Split(',', 3).Last();
 
         using var userSearcher = new DirectorySearcher(
-            new DirectoryEntry($"LDAP://{_adOptions.Value.Server}/{userDN}"),
+            new DirectoryEntry($"LDAP://{_ldapServer}/{userDN}"),
             $"(objectClass=User)",
             ["distinguishedName", "userPrincipalName", "objectGuid", "eduPersonPrincipalName"],
             SearchScope.Base);
@@ -114,7 +131,7 @@ public class ActiveDirectoryService
     {
         try
         {
-            var passkeyEntry = new DirectoryEntry($"LDAP://{_adOptions.Value.Server}/{passkeyDN}");
+            var passkeyEntry = new DirectoryEntry($"LDAP://{_ldapServer}/{passkeyDN}");
             var lastLogon = lastUsageTime.ToFileTime();
 
             passkeyEntry.Properties["lastLogonTimestamp"].SetLargeInteger(lastLogon);
