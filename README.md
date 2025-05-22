@@ -116,8 +116,10 @@ Start-Service -Name ADFSPasskeyHandler
 
 ## Passkey as SAML2 IDP primary authentication method
 
-Since ADFS does not allow primary authentication methods to be 2FA'd in any useful way, we are moving the passkey authentication into a SAML2 IDP, that'll have it's own webpage and logic, allowing anyone authenticating with a passkey to use it as two-factor authentication in a single step.
+Since ADFS does not allow primary authentication methods to be 2FA'd in any useful way, we are moving the passkey authentication into a SAML2 IDP,
+that'll have it's own webpage and logic, allowing anyone authenticating with a passkey to use it as two-factor authentication (own the device, know the PIN) in a single step.
 ADFS will use the IDP as ClaimProviderTrust and we're injecting all claims neccessary to make ADFS think it's already been authenticated with multiple factors.
+This tool will work with any other SAML2 SP as well, but the ADFS integration is the most interesting part for us here.
 
 ... to be continued
 

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -10,19 +10,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<COMReference Include="ActiveDs">
-			<WrapperTool>tlbimp</WrapperTool>
-			<VersionMinor>0</VersionMinor>
-			<VersionMajor>1</VersionMajor>
-			<Guid>97d25db0-0363-11cf-abc4-02608c9e7553</Guid>
-			<Lcid>0</Lcid>
-			<Isolated>false</Isolated>
-			<EmbedInteropTypes>true</EmbedInteropTypes>
-		</COMReference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="JGUZDV.ActiveDirectory" Version="1.0.0" />
+		<PackageReference Include="JGUZDV.ActiveDirectory" Version="1.2.0" />
+		<PackageReference Include="JGUZDV.ActiveDirectory.COM" Version="1.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
