@@ -22,10 +22,13 @@ services.AddOptions<PasskeyAuthOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+// Copy settings from PasskeyAuthOptions to ActiveDirectoryOptions
 services.AddOptions<ActiveDirectoryOptions>()
     .Configure<IOptions<PasskeyAuthOptions>>((opt, pkauth) =>
     {
-        opt.Server = pkauth.Value.ActiveDirectory.Server;
+        opt.DomainName = pkauth.Value.ActiveDirectory.DomainName;
+        opt.LdapPort = pkauth.Value.ActiveDirectory.LdapPort;
+        opt.LdapServer = pkauth.Value.ActiveDirectory.LdapServer;
         opt.BaseOU = pkauth.Value.ActiveDirectory.BaseOU;
     })
     .ValidateDataAnnotations()
