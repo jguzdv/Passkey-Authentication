@@ -1,3 +1,4 @@
+using System.Buffers.Text;
 using System.Globalization;
 using System.Runtime.Versioning;
 using System.Text.Json;
@@ -24,14 +25,14 @@ internal class PasskeyEndpoints
         }
 
         var allowedCredentials = passkeyCredentialIds
-            .Select(x => Base64Url.Decode(x))
+            .Select(x => Base64Url.DecodeFromChars(x))
             .Select(x => new PublicKeyCredentialDescriptor(x))
             .ToArray();
 
-        var assertionOptions = fido2.GetAssertionOptions(
-            allowedCredentials,
-            UserVerificationRequirement.Required
-        );
+        var assertionOptions = fido2.GetAssertionOptions(new() {
+            AllowedCredentials = allowedCredentials,
+            UserVerification = UserVerificationRequirement.Required
+        });
 
         var jsonFidoAssertionOptions = assertionOptions.ToJson();
         return Results.Content(
@@ -85,7 +86,7 @@ internal class PasskeyEndpoints
             adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, timeProvider.GetUtcNow());
 
             var mfaAuthTime = timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture);
-            var fido2CredId = Base64Url.Encode(passkeyDescriptor.CredentialId);
+            var fido2CredId = Base64Url.EncodeToString(passkeyDescriptor.CredentialId);
 
             return Results.Ok($"""
                 amr=FIDO2Passkey
