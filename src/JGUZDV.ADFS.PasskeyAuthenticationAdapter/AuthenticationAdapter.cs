@@ -159,7 +159,8 @@ public class AuthenticationAdapter : IAuthenticationAdapter
 
         var passkeyIds = _config.DomainName != null
             ? ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.DomainName, _config.LdapPort)
-            ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.LdapServer!);
+            : ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.LdapServer!);
+
         if (passkeyIds?.Any() == true)
         {
             context.SavePasskeyCredentialIds(passkeyIds);
