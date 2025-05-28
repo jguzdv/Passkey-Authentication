@@ -5,6 +5,7 @@ using JGUZDV.ActiveDirectory.Configuration;
 using JGUZDV.AspNetCore.Hosting;
 using JGUZDV.Passkey.ActiveDirectory;
 using JGUZDV.PasskeyAuth.Configuration;
+using JGUZDV.PasskeyAuth.Endpoints;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 
@@ -96,8 +97,10 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         opt.SlidingExpiration = false;
         // TODO: make this configurable
         opt.ExpireTimeSpan = TimeSpan.FromHours(8);
+        opt.LoginPath = "/";
     })
     .AddCookieDistributedTicketStore();
+services.AddAuthorizationCore();
 
 services.AddFido2(builder.Configuration.GetSection("Fido2"));
 
@@ -153,7 +156,11 @@ app.UseRouting();
 
 app.UseAntiforgery();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapRazorPages();
+app.MapSAMLEndpoints();
 app.MapControllers();
 
 app.Run();
