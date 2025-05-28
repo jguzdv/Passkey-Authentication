@@ -18,7 +18,7 @@
                 </button>
             </div>
 
-            <div class="mt-2" id="status-message"></div>
+            <status-message class="mt-2" id="status-message" message-key=""></status-message>
 
             <form id="auth-form" name="auth-form" asp-route="passkey-auth" method="post">
                 <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
@@ -31,5 +31,5 @@
         </div>
     </div>
 
-    <script defer src="/ts/app.js" type="module"></script>
+    <script defer src="/ts/Index.js" type="module"></script>
 </body>

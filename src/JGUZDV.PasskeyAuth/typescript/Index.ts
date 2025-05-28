@@ -1,4 +1,5 @@
 import * as Passkeys from "./PasskeyAuth.js";
+import * as Components from "./Components.js";
 
 declare global {
     interface Document {
@@ -18,26 +19,12 @@ async function handlePasskeyAuth(passkeyOptionsUrl: string, statusCallback: (key
     statusCallback("SubmitAssertionResponse");
 }
 
-async function loadLanguageResources() {
-    let lang = navigator.language.split("-")[0];
-    if (lang !== "en") {
-        lang = "default";
-    }
-    
-    const response = await fetch(`lang/${lang}.json`);
-    return await response.json();
-}
-
 async function updateStatusMessage(key: string) {
-    if (!document.i18n) {
-        document.i18n = await loadLanguageResources();
-    }
-
-    const statusElement = document.getElementById("status-message") as HTMLSpanElement;
-    if (key) {
-        statusElement.innerText = ((document.i18n && document.i18n[key]) || key);
-    }
+    const statusElement = document.getElementById("status-message") as HTMLElement;
+    statusElement.setAttribute("message-key", key);
 }
+
+Components.registerCustomElements();
 
 if (Passkeys.isBrowserCapable()) {
     const passkeyUrl = document.body.getAttribute("data-passkey-initiator-url") ?? "/passkey";
