@@ -1,0 +1,66 @@
+---
+title: Passkey IDP Flowchart
+---
+flowchart TB
+    %% Nodes
+    Open("fa:fa-globe Open Passkey Page")
+    HasRedirect{"Url has 'redirectUri'?"}
+    HasWebAuthN{"WebAuthN available?"}
+    AskSession("fa:fa-question-circle Get User SessionId")
+    ShowError("fa:fa-exclamation-triangle Show Error Message")
+
+    Open --> HasRedirect
+    HasRedirect -->|Yes| PerformWebAuthN
+    HasRedirect -->|No| HasWebAuthN
+    HasWebAuthN -->|Yes| AskSession
+    HasWebAuthN -->|No| ShowError
+    AskSession --> PerformWebAuthN
+
+
+    subgraph PerformWebAuthN["Perform WebAuthN"]
+        direction TB
+
+        HasSession{"SessionId available?"}
+
+        CreateSession("Create Session")
+        CreateOptions("Create Passkey Options")
+
+        QCapability{"WebAuthN available?"}
+        GetOptions["fa:fa-download Fetch Passkey Options"]
+        GetCredetials["fa:fa-key Get Passkey Credentials"]
+        SendAttestation["fa:fa-upload Send Attestation to Server"]
+        VerifyAttestation["fa:fa-check Verify Attestation"]
+        LoginSuccess["fa:fa-check-circle Login Success"]
+        LoginFailure["fa:fa-times-circle Login Failure"]
+        
+        PresentSession["Present SessionId to user"]
+        OpenOtherBrowser["User opens browser"]
+        PollingForSessionStatus["Polling for Session Status"]
+
+        HasSession -->|No| CreateSession
+        CreateSession --> CreateOptions
+        CreateOptions --> QCapability
+        QCapability -->|Available| GetOptions
+        QCapability -->|Not available| PresentSession
+        HasSession -->|Yes| GetOptions
+        PresentSession --> PollingForSessionStatus
+        PresentSession --> OpenOtherBrowser
+
+        PollingForSessionStatus --> |Expired| LoginFailure
+        PollingForSessionStatus --> |Pending| PollingForSessionStatus
+        PollingForSessionStatus --> |Ready| SendAttestation
+
+        GetOptions --> GetCredetials
+        GetCredetials --> SendAttestation
+        SendAttestation --> VerifyAttestation
+        VerifyAttestation -->|Success| LoginSuccess
+        VerifyAttestation -->|Failure| LoginFailure
+    end
+
+    %% Edge connections between nodes
+    
+        
+        
+
+    %% Individual node styling. Try the visual editor toolbar for easier styling!
+        style ShowError color:#FFF, fill:#A00, stroke:#000
