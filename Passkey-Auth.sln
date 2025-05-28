@@ -86,8 +86,8 @@ Global
 		{3BAFE8D5-A333-467B-966F-B0262CC514EC} = {7C8780EE-0DD4-43F2-B779-0950460F43BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		RESX_SortFileContentOnSave = True
-		RESX_NeutralResourcesLanguage = de-DE
 		SolutionGuid = {844D7935-BA57-4897-BECF-A507D34934EF}
+		RESX_NeutralResourcesLanguage = de-DE
+		RESX_SortFileContentOnSave = True
 	EndGlobalSection
 EndGlobal
