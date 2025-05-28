@@ -12,11 +12,6 @@ public class IndexModel : PageModel
 
     public IActionResult OnGet()
     {
-        if (User.Identities.Any(x => x.IsAuthenticated) && string.IsNullOrWhiteSpace(ReturnUrl))
-        {
-            return RedirectToPage("Info");
-        }
-
         return Page();
     }
 
