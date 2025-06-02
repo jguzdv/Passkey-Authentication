@@ -1,50 +1,81 @@
-using System.Security.Claims;
 using System.Text.Json;
 
 using Fido2NetLib;
+using Fido2NetLib.Objects;
 
 using JGUZDV.ActiveDirectory.Claims;
 using JGUZDV.Passkey.ActiveDirectory;
+using JGUZDV.PasskeyAuth.Authentication;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JGUZDV.PasskeyAuth.Endpoints;
 
 public static class PasskeyEndpoints
 {
+    private const string Fido2SessionKey = "fido2.assertionOptions";
+    private const string OTPSessionKey = "otp.value";
+
     public static void MapPasskeyEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/passkey", CreateSession);
-        endpoints.MapGet("/passkey/{sessionId}", GetPasskeySession);
-        endpoints.MapPost("/passkey/authenticate", ValidateAssertion);
+        var passkey = endpoints.MapGroup("passkey");
+
+        endpoints.MapGet("/", InitializeFido2Assertion);
+        endpoints.MapPost("/", ProcessFido2Assertion);
     }
 
 
-    internal static IResult ValidateAssertion(
-        [FromForm] WebAuthNResponse response,
-        [FromServices] ActiveDirectoryService adService,
-        [FromServices] IClaimProvider claimProvider,
+    internal static IResult InitializeFido2Assertion(
+        HttpContext context,
+        IFido2 fido2,
+        TimeProvider timeProvider,
+        ILogger<SecurityAudit> auditLogger)
+    {
+        var assertionOptions = fido2.GetAssertionOptions(
+            [],
+            UserVerificationRequirement.Required
+        );
+
+        var jsonFidoAssertionOptions = assertionOptions.ToJson();
+        context.Session.SetString(Fido2SessionKey, jsonFidoAssertionOptions);
+
+        return Results.Content(jsonFidoAssertionOptions, "application/json");
+    }
+
+
+    internal static async Task<IResult> ProcessFido2Assertion(
+        [FromQuery] string returnUrl,
+        [FromBody] WebAuthNResponse response,
+        HttpContext context,
+        PasskeyHandler passkeyHandler,
+        OneTimePasswordHandler otpHandler,
+        ActiveDirectoryService adService,
+        IClaimProvider claimProvider,
+        ILogger<SecurityAudit> auditLogger,
         CancellationToken ct)
     {
-        var assertionResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(response.WebAuthNAssertionResponseJson);
+        var assertionResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(response.WebAuthNAssertion);
         if (assertionResponse == null)
         {
-            return BadRequest("Request:WebAuthNAssertionMissing");
+            return Results.BadRequest("Request:WebAuthNAssertionMissing");
         }
 
-        var jsonFidoAssertionOptions = HttpContext.Session.GetString("fido2.assertionOptions");
+        var jsonFidoAssertionOptions = context.Session.GetString(Fido2SessionKey);
         if (jsonFidoAssertionOptions == null)
         {
-            return BadRequest("Session:AssertionOptionsMissing");
+            return Results.BadRequest("Session:AssertionOptionsMissing");
         }
+
+        context.Session.Remove(Fido2SessionKey);
 
         var assertionOptions = AssertionOptions.FromJson(jsonFidoAssertionOptions);
         if (assertionOptions == null)
         {
-            return BadRequest("Session:AssertionOptionsMissing");
+            return Results.BadRequest("Session:AssertionOptionsMissing");
         }
 
-        var (passkeyDescriptor, errorResult) = await TryHandleAssertion(adService, assertionResponse, assertionOptions, ct);
+        var (passkeyDescriptor, errorResult) = await passkeyHandler.TryHandleAssertion(adService, assertionResponse, assertionOptions, ct);
         if (errorResult != null)
         {
             return errorResult;
@@ -55,19 +86,22 @@ public static class PasskeyEndpoints
             throw new InvalidOperationException("No error was returned, but a passkey descriptor still was null");
         }
 
-        var identity = CreateClaimsIdentity(passkeyDescriptor!, claimProvider);
+        auditLogger.LogInformation("A passkey logon was successful. User: {User}, Passkey: {Passkey}", passkeyDescriptor.Owner.ObjectGuid, passkeyDescriptor.DistinguishedName);
+        var identity = passkeyHandler.CreateClaimsIdentity(passkeyDescriptor!, claimProvider);
 
-        await HttpContext.SignInAsync(
-            new ClaimsPrincipal(identity)
-        );
 
-        _auditLogger.LogInformation("A passkey logon was successful. User: {User}, Passkey: {Passkey}", passkeyDescriptor.Owner.ObjectGuid, passkeyDescriptor.DistinguishedName);
-
-        if (Url.IsLocalUrl(response.ReturnUrl))
+        // If the user has a returnUrl, we redirect them there after signing in.
+        if (!string.IsNullOrWhiteSpace(returnUrl))
         {
-            return Redirect(response.ReturnUrl);
+            await context.SignInAsync(new (identity));
+            return Results.LocalRedirect(returnUrl);
         }
 
-        return RedirectToPage("/Self");
+        
+        // If the user does not have a returnUrl, we create a one-time-password and redirect them to the display page.
+        var oneTimePassword = otpHandler.CreateOneTimePassword(context, identity);
+        context.Session.SetString(OTPSessionKey, oneTimePassword);
+
+        return Results.Redirect("/OTP");
     }
 }
