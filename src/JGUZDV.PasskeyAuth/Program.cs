@@ -4,6 +4,7 @@ using JGUZDV.ActiveDirectory;
 using JGUZDV.ActiveDirectory.Configuration;
 using JGUZDV.AspNetCore.Hosting;
 using JGUZDV.Passkey.ActiveDirectory;
+using JGUZDV.PasskeyAuth.Authentication;
 using JGUZDV.PasskeyAuth.Configuration;
 using JGUZDV.PasskeyAuth.Endpoints;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
@@ -78,17 +79,9 @@ services.AddOptions<ClaimProviderOptions>()
 services.AddHttpClient();
 services.AddTransient((sp) => TimeProvider.System);
 
-
-//services.AddLocalization();
-//services.AddRequestLocalization(opt =>
-//{
-//    opt.SupportedCultures = [new("de-de"), new("en-US")];
-//    opt.SupportedUICultures = [.. opt.SupportedCultures];
-//    opt.DefaultRequestCulture = new(opt.SupportedCultures.First());
-//});
-
-//services.AddControllers();
-//services.AddRazorPages();
+//TODO: This is a redo, since it's missing from the HostBuilder
+services.AddRazorPages()
+    .AddViewLocalization();
 services.AddSession();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -103,6 +96,9 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 services.AddAuthorizationCore();
 
 services.AddFido2(builder.Configuration.GetSection("Fido2"));
+
+services.AddScoped<PasskeyHandler>();
+services.AddScoped<OneTimePasswordHandler>();
 
 services.AddOptions<CertificateOptions>()
     .Bind(builder.Configuration.GetSection("Saml2"))
@@ -132,6 +128,12 @@ services.AddHostedService<MetadataManager>();
 services.AddOptions<RelyingPartyOptions>()
     .Bind(builder.Configuration.GetSection("Saml2"));       // Binds appsettings->Saml2->RelyingParties
 
+services.AddRequestLocalization(opt =>
+{
+    opt.SupportedCultures = [new("de-DE"), new("en-US")];
+    opt.SupportedUICultures = [.. opt.SupportedCultures];
+    opt.DefaultRequestCulture = new(opt.SupportedCultures.First());
+});
 
 var app = builder.Build();
 
@@ -161,6 +163,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapSAMLEndpoints();
-app.MapControllers();
+app.MapPasskeyEndpoints();
+app.MapOTPEndpoints();
 
 app.Run();

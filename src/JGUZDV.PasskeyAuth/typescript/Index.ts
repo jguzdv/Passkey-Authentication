@@ -7,38 +7,44 @@ declare global {
     }
 }
 
-async function handlePasskeyAuth(passkeyOptionsUrl: string, statusCallback: (key: string) => void) {
-    statusCallback("FetchAssertionOptions");
+async function handlePasskeyAuth(passkeyOptionsUrl: string) {
+    updateStatusMessage("FetchAssertionOptions");
     const publicKeyOptionsResponse = await fetch(passkeyOptionsUrl);
     const publicKeyOptionsJson = await publicKeyOptionsResponse.text();
 
-    const publicKeyCredentialJson = await Passkeys.getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson, statusCallback);
+    const publicKeyCredentialJson = await Passkeys.getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson, updateStatusMessage);
     (<HTMLInputElement>document.getElementById("assertion-response")).value = publicKeyCredentialJson;
+
+    updateStatusMessage("SubmitAssertionResponse");
     (<HTMLFormElement>document.getElementById("auth-form")).submit();
-
-    statusCallback("SubmitAssertionResponse");
 }
 
-async function updateStatusMessage(key: string) {
-    const statusElement = document.getElementById("status-message") as HTMLElement;
-    statusElement.setAttribute("message-key", key);
+function updateStatusMessage(key: string) {
+    document.getElementById("status-message")?.setAttribute("message-key", key);
 }
 
-Components.registerCustomElements();
+async function handlePasskeyButtonClick(event: Event) {
+    await handlePasskeyAuth("passkey");
+}
 
-if (Passkeys.isBrowserCapable()) {
-    const passkeyUrl = document.body.getAttribute("data-passkey-initiator-url") ?? "/passkey";
-    const autostartPasskey = !!document.body.getAttribute("data-passkey-autostart");
+async function executePage() {
+    const isPasskeyCapable = Passkeys.isBrowserCapable();
+    document.body.setAttribute("data-passkey-capable", isPasskeyCapable ? "true" : "false");
 
-    if (autostartPasskey) {
-        await handlePasskeyAuth(passkeyUrl, updateStatusMessage);
+    if (isPasskeyCapable) {
+        customElements.define("status-message", Components.StatusMessage);
+
+        if (document.body.getAttribute("clickless") === "true") {
+            await handlePasskeyAuth("passkey");
+        }
+        else
+        {
+            const buttons = document.querySelectorAll("button[passkey-auth]");
+            buttons.forEach((button) => {
+                button.addEventListener("click", handlePasskeyButtonClick);
+            });
+        }
     }
+}
 
-    document.getElementById("passkey-initiator")!.addEventListener("click", () => {
-        handlePasskeyAuth(passkeyUrl, updateStatusMessage);
-    });
-}
-else {
-    document.getElementById("passkey-initiator")!.remove();
-    updateStatusMessage("CapabilityMissing");
-}
+executePage();

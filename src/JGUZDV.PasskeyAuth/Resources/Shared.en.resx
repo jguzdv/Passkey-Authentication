@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,11 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="OTP:Explanation" xml:space="preserve">
+    <value>This one-time password is only valid for a few minutes.&lt;br /&gt;
+Only enter it in a browser that has been opened by an application where you expect it, e.g:&lt;br /&gt;
+Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
+  </data>
+  <data name="OTP:InputButton" xml:space="preserve">
+    <value>Login now</value>
+  </data>
+  <data name="OTP:InputLabel" xml:space="preserve">
+    <value>One time password</value>
+  </data>
+  <data name="OTP:Manual" xml:space="preserve">
+    <value>Your current browser does not support passkeys. Please open {0} in another browser and create a one-time-password.&lt;br /&gt;
+Copy the password here to login.</value>
+  </data>
   <data name="Passkey:AssertionFailed" xml:space="preserve">
     <value>The used passkey could not be verified.</value>
   </data>
   <data name="Passkey:NotFound" xml:space="preserve">
     <value>The used passkey could not be found. Please make sure, the passkey in use has been registered.</value>
+  </data>
+  <data name="PK:NotPossible" xml:space="preserve">
+    <value>The usage of a passkey is not possible in this browser.&lt;br /&gt;Please use another browser.</value>
   </data>
   <data name="Request:WebAuthNAssertionMissing" xml:space="preserve">
     <value>The request did not contain any passkey data. Please try again.</value>

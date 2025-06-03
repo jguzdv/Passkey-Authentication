@@ -1,13 +1,9 @@
-.passkey-capable, .passkey-incabable {
+.passkey-capable, .passkey-incapable {
     display: none;
 }
 
 [data-passkey-capable="false"] {
-    .passkey-capable {
-        display: none;
-    }
-
-    .passkey-incabable {
+    .passkey-incapable {
         display: block;
     }
 }
@@ -16,9 +12,5 @@
 [data-passkey-capable="true"] {
     .passkey-capable {
         display: block;
-    }
-
-    .passkey-incabable {
-        display: none;
     }
 }

@@ -1,0 +1,23 @@
+﻿@page
+@model JGUZDV.PasskeyAuth.Pages.OTPModel;
+
+<body>
+    <div id="app" class="jbs-app">
+        <div class="px-2 d-flex flex-column align-items-center justify-content-center" style="min-height: 100dvh; max-width: 400px">
+            <div class="mb-4">
+                <img src="https://cdn.zdv.uni-mainz.de/web/assets/logo_uni-mainz_grey.svg" style="height: 100px;" class="py-2" />
+            </div>
+            <div>
+                <img src="/img/passkey-logo.svg" alt="passkeyLogo" style="height: 200px; aspect-ratio: 1" />
+            </div>
+
+            <div class="text-center">
+                @SL["OTP:Explanation"]
+            </div>
+
+            <div class="alert alert-success d-flex flex-column align-items-center justify-content-center">
+                <div class="mt-2">@Model.OneTimePassword</div>
+            </div>
+        </div>
+    </div>
+</body>

@@ -21,8 +21,9 @@ public static class PasskeyEndpoints
     {
         var passkey = endpoints.MapGroup("passkey");
 
-        endpoints.MapGet("/", InitializeFido2Assertion);
-        endpoints.MapPost("/", ProcessFido2Assertion);
+        passkey.MapGet("/", InitializeFido2Assertion);
+        passkey.MapPost("/", ProcessFido2Assertion)
+            .WithName(EndpointNames.PasskeyAssertion);
     }
 
 
@@ -45,8 +46,8 @@ public static class PasskeyEndpoints
 
 
     internal static async Task<IResult> ProcessFido2Assertion(
-        [FromQuery] string returnUrl,
-        [FromBody] WebAuthNResponse response,
+        [FromQuery] string? returnUrl,
+        [FromForm] string webAuthNResponse,
         HttpContext context,
         PasskeyHandler passkeyHandler,
         OneTimePasswordHandler otpHandler,
@@ -55,8 +56,8 @@ public static class PasskeyEndpoints
         ILogger<SecurityAudit> auditLogger,
         CancellationToken ct)
     {
-        var assertionResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(response.WebAuthNAssertion);
-        if (assertionResponse == null)
+        var assertionResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(webAuthNResponse);
+        if (webAuthNResponse == null)
         {
             return Results.BadRequest("Request:WebAuthNAssertionMissing");
         }
@@ -99,7 +100,7 @@ public static class PasskeyEndpoints
 
         
         // If the user does not have a returnUrl, we create a one-time-password and redirect them to the display page.
-        var oneTimePassword = otpHandler.CreateOneTimePassword(context, identity);
+        var oneTimePassword = await otpHandler.CreateOneTimePasswordAsync(context, identity, ct);
         context.Session.SetString(OTPSessionKey, oneTimePassword);
 
         return Results.Redirect("/OTP");
