@@ -1,27 +1,16 @@
 ﻿@page
 @model JGUZDV.PasskeyAuth.Pages.InfoModel;
 
-<body>
-    <div id="app" class="jbs-app">
-        <div class="px-2 d-flex flex-column align-items-center justify-content-center" style="min-height: 100dvh;">
-            <div>
-                <img src="/img/passkey-logo.svg" alt="passkeyLogo" style="height: 200px; aspect-ratio: 1" />
-            </div>
+@if(User.Identity?.IsAuthenticated == true)
+{
+    <div class="alert alert-success d-flex flex-column align-items-center justify-content-center">
+        <div class="mt-2 fs-1">✅</div>
+        <div class="mt-2">Die Anmeldung mit Ihrem Passkey war erfolgreich</div>
 
-            @if(User.Identity?.IsAuthenticated == true)
-            {
-                <div class="alert alert-success d-flex flex-column align-items-center justify-content-center">
-                    <div class="mt-2 fs-1">✅</div>
-                    <div class="mt-2">Die Anmeldung mit Ihrem Passkey war erfolgreich</div>
-
-                    <div class="mt-2">@User.FindFirst("upn")!.Value</div>
-                    <div class="mt-2 font-monospace">@User.FindFirst("fido2_cred_id")!.Value</div>
-                </div>
-            }
-        </div>
+        <div class="mt-2">@User.FindFirst("upn")!.Value</div>
+        <div class="mt-2 font-monospace">@User.FindFirst("fido2_cred_id")!.Value</div>
     </div>
-</body>
-
+}
 
 <h1>Passkey-Anmeldedaten</h1>
 <pre>

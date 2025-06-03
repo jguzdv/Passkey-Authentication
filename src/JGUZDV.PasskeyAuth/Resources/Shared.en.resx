@@ -129,8 +129,8 @@ Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
     <value>One time password</value>
   </data>
   <data name="OTP:Manual" xml:space="preserve">
-    <value>Your current browser does not support passkeys. Please open {0} in another browser and create a one-time-password.&lt;br /&gt;
-Copy the password here to login.</value>
+    <value>Your current browser does &lt;b&gt;not&lt;/b&gt; support passkeys.&lt;br /&gt;Please open &lt;b&gt;{0}&lt;/b&gt; in another browser and create a one-time-password.&lt;br /&gt;
+Copy the password here to login with this browser.</value>
   </data>
   <data name="Passkey:AssertionFailed" xml:space="preserve">
     <value>The used passkey could not be verified.</value>

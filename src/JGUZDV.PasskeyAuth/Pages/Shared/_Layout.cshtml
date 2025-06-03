@@ -14,5 +14,13 @@
         <link href="https://cdn.zdv.uni-mainz.de/web/fontawesome/5-free/css/all.min.css" rel="stylesheet" />
         <link href="css/app.css" rel="stylesheet" />
     </head>
-    @RenderBody()
+    <body clickless="@ViewData["clickless"]">
+        <div class="content">
+            <div class="imgs">
+                <img src="https://cdn.zdv.uni-mainz.de/web/assets/logo_uni-mainz_grey.svg" class="brand" />
+                <img src="/img/passkey-logo.svg" alt="passkeyLogo" class="logo" />
+            </div>
+            @RenderBody()
+        </div>
+    </body>
 </html>

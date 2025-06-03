@@ -129,8 +129,8 @@ Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
     <value>Einmalpasswort</value>
   </data>
   <data name="OTP:Manual" xml:space="preserve">
-    <value>Dieser Browser unterstützt keine Passkeys, bitte öffnen Sie {0} in einem anderen Browser und erzeugen Sie dort ein Einmalpasswort.&lt;br /&gt;
-Dieses können Sie dann hier Verwenden, um sich anzumelden.</value>
+    <value>Dieser Browser unterstützt &lt;b&gt;keine&lt;/b&gt; Passkeys,&lt;br /&gt;bitte öffnen Sie &lt;b&gt;{0}&lt;/b&gt; in einem anderen Browser und erzeugen Sie dort ein Einmalpasswort.&lt;br /&gt;
+Dieses können Sie dann hierher kopieren, um sich in diesem Browser anzumelden.</value>
     <comment>0: passkey url</comment>
   </data>
   <data name="Passkey:AssertionFailed" xml:space="preserve">
