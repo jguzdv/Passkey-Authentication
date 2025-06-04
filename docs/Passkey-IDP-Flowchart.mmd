@@ -4,58 +4,45 @@ title: Passkey IDP Flowchart
 flowchart TB
     %% Nodes
     Open("fa:fa-globe Open Passkey Page")
-    HasRedirect{"Url has 'redirectUri'?"}
-    HasWebAuthN{"WebAuthN available?"}
-    AskSession("fa:fa-question-circle Get User SessionId")
-    ShowError("fa:fa-exclamation-triangle Show Error Message")
+    CheckCaps("fa:fa-check-square Check WebAuthN")
+    CheckRedirect("fa:fa-external-link Check for Redirect")
+    StatusCheck{"Status Check"}
 
-    Open --> HasRedirect
-    HasRedirect -->|Yes| PerformWebAuthN
-    HasRedirect -->|No| HasWebAuthN
-    HasWebAuthN -->|Yes| AskSession
-    HasWebAuthN -->|No| ShowError
-    AskSession --> PerformWebAuthN
+    AskOTP("fa:fa-key Explain OTP")
+    WaitForOtp("fa:fa-spinner Wait for OTP input")
+    CheckOTP("fa:fa-check Check OTP")
+
+    PerformWebAuthN("fa:fa-fingerprint Perform WebAuthN")
+
+    AllowOTPCreation("fa:fa-key Show OTP button")
+    CreateOTP(fa:fa-fingerprint Perform WebAuthN)
+    ShowOTP("fa:fa-key Show OTP")
+
+    LoginFailure["fa:fa-times-circle Login failure"]
+    LoginSuccess["fa:fa-check-circle Login success"]
 
 
-    subgraph PerformWebAuthN["Perform WebAuthN"]
-        direction TB
+    Open --> CheckCaps
+    CheckCaps --> CheckRedirect
+    CheckRedirect --> StatusCheck
+    StatusCheck -->|No WebAuthN, No Redirect| LoginFailure
+    StatusCheck -->|No WebAuthN, Redirect| AskOTP
+    StatusCheck -->|WebAuthN, Redirect| PerformWebAuthN
+    StatusCheck -->|WebAuthN, No Redirect| AllowOTPCreation
+    
+    %% User could use OTP
+    AskOTP --> WaitForOtp
+    WaitForOtp --> CheckOTP
+    CheckOTP -->|Valid| LoginSuccess
+    CheckOTP -->|Invalid| LoginFailure
+    
 
-        HasSession{"SessionId available?"}
+    PerformWebAuthN --> |Success| LoginSuccess
+    PerformWebAuthN --> |Failure| LoginFailure
 
-        CreateSession("Create Session")
-        CreateOptions("Create Passkey Options")
 
-        QCapability{"WebAuthN available?"}
-        GetOptions["fa:fa-download Fetch Passkey Options"]
-        GetCredetials["fa:fa-key Get Passkey Credentials"]
-        SendAttestation["fa:fa-upload Send Attestation to Server"]
-        VerifyAttestation["fa:fa-check Verify Attestation"]
-        LoginSuccess["fa:fa-check-circle Login Success"]
-        LoginFailure["fa:fa-times-circle Login Failure"]
-        
-        PresentSession["Present SessionId to user"]
-        OpenOtherBrowser["User opens browser"]
-        PollingForSessionStatus["Polling for Session Status"]
-
-        HasSession -->|No| CreateSession
-        CreateSession --> CreateOptions
-        CreateOptions --> QCapability
-        QCapability -->|Available| GetOptions
-        QCapability -->|Not available| PresentSession
-        HasSession -->|Yes| GetOptions
-        PresentSession --> PollingForSessionStatus
-        PresentSession --> OpenOtherBrowser
-
-        PollingForSessionStatus --> |Expired| LoginFailure
-        PollingForSessionStatus --> |Pending| PollingForSessionStatus
-        PollingForSessionStatus --> |Ready| SendAttestation
-
-        GetOptions --> GetCredetials
-        GetCredetials --> SendAttestation
-        SendAttestation --> VerifyAttestation
-        VerifyAttestation -->|Success| LoginSuccess
-        VerifyAttestation -->|Failure| LoginFailure
-    end
+    AllowOTPCreation --> |Button| CreateOTP
+    CreateOTP --> |Success| ShowOTP
 
     %% Edge connections between nodes
     
@@ -63,4 +50,5 @@ flowchart TB
         
 
     %% Individual node styling. Try the visual editor toolbar for easier styling!
-        style ShowError color:#FFF, fill:#A00, stroke:#000
+        style LoginFailure color:#FFF, fill:#A00, stroke:#000
+        style LoginSuccess color:#FFF, fill:#060, stroke:#000
