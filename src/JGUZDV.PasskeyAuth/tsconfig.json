@@ -4,7 +4,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ES2022",
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "wwwroot/ts/",
     "rootDir": "typescript",
     "strict": true,

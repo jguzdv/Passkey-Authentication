@@ -117,10 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Info:InitButton" xml:space="preserve">
+    <value>Passkey-Anmeldung testen</value>
+  </data>
   <data name="OTP:Explanation" xml:space="preserve">
     <value>Dieses Einmalpasswort ist nur wenige Minuten gültig.&lt;br/&gt;
 Geben Sie es nur in einem Browser ein, der von einer Anwendung geöffnet wurde, bei der Sie es erwarten, bspw:&lt;br /&gt;
 Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
+  </data>
+  <data name="OTP:InitButton" xml:space="preserve">
+    <value>Einmalpasswort anfordern</value>
   </data>
   <data name="OTP:InputButton" xml:space="preserve">
     <value>Jetzt anmelden</value>

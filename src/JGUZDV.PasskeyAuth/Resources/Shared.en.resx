@@ -117,10 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Info:InitButton" xml:space="preserve">
+    <value>Test passkey logon</value>
+  </data>
   <data name="OTP:Explanation" xml:space="preserve">
     <value>This one-time password is only valid for a few minutes.&lt;br /&gt;
 Only enter it in a browser that has been opened by an application where you expect it, e.g:&lt;br /&gt;
 Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
+  </data>
+  <data name="OTP:InitButton" xml:space="preserve">
+    <value>Request one time password</value>
   </data>
   <data name="OTP:InputButton" xml:space="preserve">
     <value>Login now</value>

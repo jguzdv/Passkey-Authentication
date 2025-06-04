@@ -10,7 +10,9 @@ using JGUZDV.PasskeyAuth.Endpoints;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
 using BlazorInteractivityModes = JGUZDV.AspNetCore.Hosting.Components.BlazorInteractivityModes;
@@ -35,6 +37,7 @@ services.AddOptions<ActiveDirectoryOptions>()
     })
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
 
 services.AddScoped<ActiveDirectoryService>();
 
@@ -82,6 +85,13 @@ services.AddTransient((sp) => TimeProvider.System);
 //TODO: This is a redo, since it's missing from the HostBuilder
 services.AddRazorPages()
     .AddViewLocalization();
+
+services.Configure<RazorPagesOptions>(opt =>
+{
+    opt.Conventions.AuthorizePage("/Info");
+});
+
+
 services.AddSession();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -128,12 +138,6 @@ services.AddHostedService<MetadataManager>();
 services.AddOptions<RelyingPartyOptions>()
     .Bind(builder.Configuration.GetSection("Saml2"));       // Binds appsettings->Saml2->RelyingParties
 
-services.AddRequestLocalization(opt =>
-{
-    opt.SupportedCultures = [new("de-DE"), new("en-US")];
-    opt.SupportedUICultures = [.. opt.SupportedCultures];
-    opt.DefaultRequestCulture = new(opt.SupportedCultures.First());
-});
 
 var app = builder.Build();
 

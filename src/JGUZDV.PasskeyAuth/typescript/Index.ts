@@ -24,6 +24,9 @@ function updateStatusMessage(key: string) {
 }
 
 async function handlePasskeyButtonClick(event: Event) {
+    const buttons = document.getElementsByClassName("action-buttons");
+    buttons[0].classList.add("d-none");
+
     await handlePasskeyAuth("passkey");
 }
 

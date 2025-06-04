@@ -17,12 +17,15 @@
     <form id="auth-form" name="auth-form" asp-route="@EndpointNames.PasskeyAssertion" asp-all-route-data="routeData" method="post" enctype="multipart/form-data">
         <input type="hidden" id="assertion-response" name="WebAuthNResponse" />
     </form>
-    <status-message class="mt-2" id="status-message" message-key=""></status-message>
-
+    <div>
+        <status-message class="mt-2" id="status-message" message-key=""></status-message>
+    </div>
     @if (!Model.ClicklessPasskey) {
         @* Tasten zum Triggern von OTP / Info *@
-        <button class="btn btn-dark" passkey-auth>@SL["OTP:InitButton"]</button>
-        <a href="~/Info" class="btn btn-light">@SL["Info:InitButton"]</a>
+        <div class="action-buttons">
+            <button class="btn btn-dark" passkey-auth><i class="fa fa-fw fa-key"></i> @SL["OTP:InitButton"]</button>
+            <a href="~/Info" class="btn btn-light"><i class="fa fa-fw fa-info-circle"></i> @SL["Info:InitButton"]</a>
+        </div>
     }
 </div>
 

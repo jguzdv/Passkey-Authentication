@@ -25,6 +25,12 @@ body {
             aspect-ratio: 1;
         }
     }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.5rem;
+    }
 }
 
 .passkey-capable, .passkey-incapable {
