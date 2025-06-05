@@ -4,11 +4,15 @@ using JGUZDV.ActiveDirectory;
 using JGUZDV.ActiveDirectory.Configuration;
 using JGUZDV.AspNetCore.Hosting;
 using JGUZDV.Passkey.ActiveDirectory;
+using JGUZDV.PasskeyAuth.Authentication;
 using JGUZDV.PasskeyAuth.Configuration;
+using JGUZDV.PasskeyAuth.Endpoints;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
 using BlazorInteractivityModes = JGUZDV.AspNetCore.Hosting.Components.BlazorInteractivityModes;
@@ -33,6 +37,7 @@ services.AddOptions<ActiveDirectoryOptions>()
     })
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
 
 services.AddScoped<ActiveDirectoryService>();
 
@@ -77,17 +82,16 @@ services.AddOptions<ClaimProviderOptions>()
 services.AddHttpClient();
 services.AddTransient((sp) => TimeProvider.System);
 
+//TODO: This is a redo, since it's missing from the HostBuilder
+services.AddRazorPages()
+    .AddViewLocalization();
 
-//services.AddLocalization();
-//services.AddRequestLocalization(opt =>
-//{
-//    opt.SupportedCultures = [new("de-de"), new("en-US")];
-//    opt.SupportedUICultures = [.. opt.SupportedCultures];
-//    opt.DefaultRequestCulture = new(opt.SupportedCultures.First());
-//});
+services.Configure<RazorPagesOptions>(opt =>
+{
+    opt.Conventions.AuthorizePage("/Info");
+});
 
-//services.AddControllers();
-//services.AddRazorPages();
+
 services.AddSession();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -96,10 +100,15 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         opt.SlidingExpiration = false;
         // TODO: make this configurable
         opt.ExpireTimeSpan = TimeSpan.FromHours(8);
+        opt.LoginPath = "/";
     })
     .AddCookieDistributedTicketStore();
+services.AddAuthorizationCore();
 
 services.AddFido2(builder.Configuration.GetSection("Fido2"));
+
+services.AddScoped<PasskeyHandler>();
+services.AddScoped<OneTimePasswordHandler>();
 
 services.AddOptions<CertificateOptions>()
     .Bind(builder.Configuration.GetSection("Saml2"))
@@ -153,7 +162,12 @@ app.UseRouting();
 
 app.UseAntiforgery();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapRazorPages();
-app.MapControllers();
+app.MapSAMLEndpoints();
+app.MapPasskeyEndpoints();
+app.MapOTPEndpoints();
 
 app.Run();

@@ -1,0 +1,54 @@
+---
+title: Passkey IDP Flowchart
+---
+flowchart TB
+    %% Nodes
+    Open("fa:fa-globe Open Passkey Page")
+    CheckCaps("fa:fa-check-square Check WebAuthN")
+    CheckRedirect("fa:fa-external-link Check for Redirect")
+    StatusCheck{"Status Check"}
+
+    AskOTP("fa:fa-key Explain OTP")
+    WaitForOtp("fa:fa-spinner Wait for OTP input")
+    CheckOTP("fa:fa-check Check OTP")
+
+    PerformWebAuthN("fa:fa-fingerprint Perform WebAuthN")
+
+    AllowOTPCreation("fa:fa-key Show OTP button")
+    CreateOTP(fa:fa-fingerprint Perform WebAuthN)
+    ShowOTP("fa:fa-key Show OTP")
+
+    LoginFailure["fa:fa-times-circle Login failure"]
+    LoginSuccess["fa:fa-check-circle Login success"]
+
+
+    Open --> CheckCaps
+    CheckCaps --> CheckRedirect
+    CheckRedirect --> StatusCheck
+    StatusCheck -->|No WebAuthN, No Redirect| LoginFailure
+    StatusCheck -->|No WebAuthN, Redirect| AskOTP
+    StatusCheck -->|WebAuthN, Redirect| PerformWebAuthN
+    StatusCheck -->|WebAuthN, No Redirect| AllowOTPCreation
+    
+    %% User could use OTP
+    AskOTP --> WaitForOtp
+    WaitForOtp --> CheckOTP
+    CheckOTP -->|Valid| LoginSuccess
+    CheckOTP -->|Invalid| LoginFailure
+    
+
+    PerformWebAuthN --> |Success| LoginSuccess
+    PerformWebAuthN --> |Failure| LoginFailure
+
+
+    AllowOTPCreation --> |Button| CreateOTP
+    CreateOTP --> |Success| ShowOTP
+
+    %% Edge connections between nodes
+    
+        
+        
+
+    %% Individual node styling. Try the visual editor toolbar for easier styling!
+        style LoginFailure color:#FFF, fill:#A00, stroke:#000
+        style LoginSuccess color:#FFF, fill:#060, stroke:#000

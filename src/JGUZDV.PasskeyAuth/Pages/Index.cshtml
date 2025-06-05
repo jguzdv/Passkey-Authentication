@@ -1,35 +1,53 @@
 ﻿@page "/"
-@model JGUZDV.PasskeyAuth.Pages.IndexModel;
+@using JGUZDV.PasskeyAuth.Endpoints
+
+@model JGUZDV.PasskeyAuth.Pages.IndexModel
 
 @{
-    var useAutoInit = Model.AutoInitPasskey && !string.IsNullOrWhiteSpace(Model.ReturnUrl);
+    ViewData["clickless"] = Model.ClicklessPasskey ? "true" : "false";
+
+    var routeData = new Dictionary<string, string?>
+    {
+        { "returnUrl", Model.ReturnUrl }
+    };
 }
 
-<body data-passkey-initiator-url="/passkey" data-passkey-autostart="@(useAutoInit ? "true" : null)">
-    <div id="app" class="jbs-app">
-        <div class="px-2 d-flex flex-column align-items-center justify-content-center" style="min-height: 100dvh;">
-            <div>
-                <img src="/img/passkey-logo.svg" alt="passkeyLogo" style="height: 200px; aspect-ratio: 1" />
-            </div>
-
-            <div class="mt-2">
-                <button id="passkey-initiator" class="btn btn-light @(useAutoInit ? "d-none":null)">
-                    Mit Passkey anmelden
-                </button>
-            </div>
-
-            <div class="mt-2" id="status-message"></div>
-
-            <form id="auth-form" name="auth-form" asp-route="passkey-auth" method="post">
-                <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
-                <input type="hidden" id="assertion-response" name="WebAuthNAssertionResponseJson" />
-            </form>
-
-            <div class="mt-4">
-                <img src="https://cdn.zdv.uni-mainz.de/web/assets/logo_uni-mainz_grey.svg" style="height: 100px;" class="py-2" />
-            </div>
-        </div>
+@* Browser is passkey-capable *@
+<div class="passkey-capable">
+    <form id="auth-form" name="auth-form" asp-route="@EndpointNames.PasskeyAssertion" asp-all-route-data="routeData" method="post" enctype="multipart/form-data">
+        <input type="hidden" id="assertion-response" name="WebAuthNResponse" />
+    </form>
+    <div>
+        <status-message class="mt-2" id="status-message" message-key=""></status-message>
     </div>
+    @if (!Model.ClicklessPasskey) {
+        @* Tasten zum Triggern von OTP / Info *@
+        <div class="action-buttons">
+            <button class="btn btn-dark" passkey-auth><i class="fa fa-fw fa-key"></i> @SL["OTP:InitButton"]</button>
+            <a href="~/Info" class="btn btn-light"><i class="fa fa-fw fa-info-circle"></i> @SL["Info:InitButton"]</a>
+        </div>
+    }
+</div>
 
-    <script defer src="/ts/app.js" type="module"></script>
-</body>
+<div class="passkey-incapable">
+    @if (Model.AllowOneTimePassword)
+    {
+        <p>@SL["OTP:Manual", $"{Request.Scheme}://{Request.Host}"]</p>
+
+        <form id="one-time-password" asp-route="@EndpointNames.OTPLogin" asp-all-route-data="routeData" method="post" enctype="multipart/form-data">
+            <div class="mb-2">
+                <label class="form-label" for="otpValue">@SL["OTP:InputLabel"]</label>
+                <input type="text" class="form-control" id="otpValue" name="otpValue" />
+            </div>
+            <button type="submit" class="btn btn-dark">@SL["OTP:InputButton"]</button>
+        </form>
+    }
+    else
+    {
+        <div class="text-center">
+            @SL["PK:NotPossible"]
+        </div>
+    }
+</div>
+
+<script defer src="/ts/Index.js" type="module"></script>
