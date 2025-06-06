@@ -160,10 +160,10 @@ app.UseSession();
 app.UseRequestLocalization();
 app.UseRouting();
 
-app.UseAntiforgery();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseAntiforgery();
 
 app.MapRazorPages();
 app.MapSAMLEndpoints();
