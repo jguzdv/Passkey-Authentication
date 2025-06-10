@@ -121,12 +121,11 @@
     <value>Passkey-Anmeldung testen</value>
   </data>
   <data name="OTP:Explanation" xml:space="preserve">
-    <value>Dieses Einmalpasswort ist nur wenige Minuten gültig.&lt;br/&gt;
-Geben Sie es nur in einem Browser ein, der von einer Anwendung geöffnet wurde, bei der Sie es erwarten, bspw:&lt;br /&gt;
-Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
+    <value>Dieses Einmalpasswort ist nur 2 Minuten lang gültig.&lt;br/&gt;&lt;br /&gt;
+Bitte kopieren Sie es und fügen Sie es in das Anmeldefenster ein, das sich zuvor geöffnet hat.</value>
   </data>
   <data name="OTP:InitButton" xml:space="preserve">
-    <value>Einmalpasswort anfordern</value>
+    <value>Einmalpasswort erzeugen</value>
   </data>
   <data name="OTP:InputButton" xml:space="preserve">
     <value>Jetzt anmelden</value>
@@ -135,8 +134,9 @@ Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
     <value>Einmalpasswort</value>
   </data>
   <data name="OTP:Manual" xml:space="preserve">
-    <value>Dieser Browser unterstützt &lt;b&gt;keine&lt;/b&gt; Passkeys,&lt;br /&gt;bitte öffnen Sie &lt;b&gt;{0}&lt;/b&gt; in einem anderen Browser und erzeugen Sie dort ein Einmalpasswort.&lt;br /&gt;
-Dieses können Sie dann hierher kopieren, um sich in diesem Browser anzumelden.</value>
+    <value>Diese Anwendung unterstützt für die Anmeldung mit dem JGU-Account noch &lt;b&gt;keine&lt;/b&gt; Passkeys.&lt;br /&gt;
+Bitte öffnen Sie &lt;b&gt;{0}&lt;/b&gt; in einem aktuellen Browser und erzeugen Sie ein Einmalpasswort.&lt;br /&gt;&lt;br /&gt;
+Kopieren Sie das erzeugte Einmalpasswort hier ein, um sich für diese Anwendung anzumelden.</value>
     <comment>0: passkey url</comment>
   </data>
   <data name="Passkey:AssertionFailed" xml:space="preserve">
@@ -146,7 +146,7 @@ Dieses können Sie dann hierher kopieren, um sich in diesem Browser anzumelden.<
     <value>Der verwendete Passkey konnte nicht gefunden werden. Prüfen Sie, ob Sie den Passkey bereits registriert haben.</value>
   </data>
   <data name="PK:NotPossible" xml:space="preserve">
-    <value>Die Verwendung eines Passkeys ist in diesem Browser leider nicht möglich.&lt;br /&gt;Bitte verwenden Sie einen anderen Browser.</value>
+    <value>Dieser Browser unterstützt &lt;b&gt;keine&lt;/b&gt; Anmeldung per Passkey.&lt;br /&gt;Bitte verwenden Sie einen anderen Browser.</value>
   </data>
   <data name="Request:WebAuthNAssertionMissing" xml:space="preserve">
     <value>Die Anfrage enthielt keine Passkey-Daten. Bitte versuchen Sie es erneut.</value>

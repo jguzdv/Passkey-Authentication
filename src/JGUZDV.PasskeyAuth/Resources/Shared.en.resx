@@ -121,12 +121,11 @@
     <value>Test passkey logon</value>
   </data>
   <data name="OTP:Explanation" xml:space="preserve">
-    <value>This one-time password is only valid for a few minutes.&lt;br /&gt;
-Only enter it in a browser that has been opened by an application where you expect it, e.g:&lt;br /&gt;
-Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
+    <value>This one-time password is only valid for 2 minutes.&lt;br /&gt;&lt;br /&gt;
+Please copy it into the login window that has been opened before.</value>
   </data>
   <data name="OTP:InitButton" xml:space="preserve">
-    <value>Request one time password</value>
+    <value>Create one time password</value>
   </data>
   <data name="OTP:InputButton" xml:space="preserve">
     <value>Login now</value>
@@ -135,8 +134,9 @@ Microsoft Teams, Word, Excel, Outlook, Adobe CS, u.Ä.</value>
     <value>One time password</value>
   </data>
   <data name="OTP:Manual" xml:space="preserve">
-    <value>Your current browser does &lt;b&gt;not&lt;/b&gt; support passkeys.&lt;br /&gt;Please open &lt;b&gt;{0}&lt;/b&gt; in another browser and create a one-time-password.&lt;br /&gt;
-Copy the password here to login with this browser.</value>
+    <value>This application does &lt;b&gt;not&lt;/b&gt; support login into your JGU-Account using passkeys.&lt;br /&gt;
+Please open &lt;b&gt;{0}&lt;/b&gt; in a browser and create a one time password.&lt;br /&gt;&lt;br /&gt;
+Copy the one time password here to login to the application.</value>
   </data>
   <data name="Passkey:AssertionFailed" xml:space="preserve">
     <value>The used passkey could not be verified.</value>
