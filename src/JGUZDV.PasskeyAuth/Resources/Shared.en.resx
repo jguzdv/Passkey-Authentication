@@ -134,7 +134,7 @@ Please copy it into the login window that has been opened before.</value>
     <value>One time password</value>
   </data>
   <data name="OTP:Manual" xml:space="preserve">
-    <value>This application does &lt;b&gt;not&lt;/b&gt; support login into your JGU-Account using passkeys.&lt;br /&gt;
+    <value>This application does &lt;b&gt;not&lt;/b&gt; support login using passkeys.&lt;br /&gt;
 Please open &lt;b&gt;{0}&lt;/b&gt; in a browser and create a one time password.&lt;br /&gt;&lt;br /&gt;
 Copy the one time password here to login to the application.</value>
   </data>

@@ -134,7 +134,7 @@ Bitte kopieren Sie es und fügen Sie es in das Anmeldefenster ein, das sich zuvo
     <value>Einmalpasswort</value>
   </data>
   <data name="OTP:Manual" xml:space="preserve">
-    <value>Diese Anwendung unterstützt für die Anmeldung mit dem JGU-Account noch &lt;b&gt;keine&lt;/b&gt; Passkeys.&lt;br /&gt;
+    <value>Diese Anwendung unterstützt für die Anmeldung noch &lt;b&gt;keine&lt;/b&gt; Passkeys.&lt;br /&gt;
 Bitte öffnen Sie &lt;b&gt;{0}&lt;/b&gt; in einem aktuellen Browser und erzeugen Sie ein Einmalpasswort.&lt;br /&gt;&lt;br /&gt;
 Kopieren Sie das erzeugte Einmalpasswort hier ein, um sich für diese Anwendung anzumelden.</value>
     <comment>0: passkey url</comment>
