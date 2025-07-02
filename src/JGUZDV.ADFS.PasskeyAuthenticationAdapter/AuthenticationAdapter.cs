@@ -157,6 +157,7 @@ public class AuthenticationAdapter : IAuthenticationAdapter
             return;
         }
 
+        // TODO: Consider moving this into the passkey handler, so we can backup from the pdc here as well
         var passkeyIds = _config.DomainName != null
             ? ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.DomainName, _config.LdapPort)
             : ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.LdapServer!);

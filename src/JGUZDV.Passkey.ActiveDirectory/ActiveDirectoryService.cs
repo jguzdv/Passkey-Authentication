@@ -27,6 +27,8 @@ public class ActiveDirectoryService
             var ctx = new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName);
             var domain = Domain.GetDomain(ctx);
 
+            // TODO: This might hammer on the PDC emulator if the service is used by multiple threads.
+            // TODO: So we'll use ldapServer from the options first and then if we did not find anything, we'll do a requery on the PDC emulator.
             _ldapServer = domain.PdcRoleOwner.Name;
         }
         else
@@ -39,6 +41,7 @@ public class ActiveDirectoryService
     {
         var credentialString = "\\" + BitConverter.ToString(credentialId).Replace("-", "\\");
 
+        // TODO: Handle search without pdc emulator at first, and then query the PDC emulator if it fails.
         using var passkeySearcher = new DirectorySearcher(
             new DirectoryEntry($"LDAP://{_ldapServer}/{_adOptions.Value.BaseOU}"),
             $"(&(objectClass=fIDOAuthenticatorDevice)(fIDOAuthenticatorCredentialId={credentialString}))",
