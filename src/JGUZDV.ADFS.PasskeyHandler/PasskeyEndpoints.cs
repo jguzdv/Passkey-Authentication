@@ -83,7 +83,7 @@ internal class PasskeyEndpoints
                 },
                 cancellationToken);
 
-            adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, timeProvider.GetUtcNow());
+            adService.UpdatePasskeyLastUsed(passkeyDescriptor.DirectoryEntry, timeProvider.GetUtcNow());
 
             var mfaAuthTime = timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture);
             var fido2CredId = Base64Url.EncodeToString(passkeyDescriptor.CredentialId);
