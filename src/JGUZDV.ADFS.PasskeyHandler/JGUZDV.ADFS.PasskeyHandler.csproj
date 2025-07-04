@@ -10,6 +10,8 @@
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 
 		<IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+
+		<UserSecretsId>af68a053-bc62-4adf-a402-5fc0743b5d25</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>

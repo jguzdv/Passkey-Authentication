@@ -18,6 +18,7 @@ var app = builder.Build();
 
 // Creates the FIDO2 Options object and returns it as JSON
 app.MapGet("/", PasskeyEndpoints.CreateAssertionOptions);
+app.MapGet("/credential-ids", PasskeyEndpoints.GetUserPasskeyIds);
 
 app.MapPost("/", PasskeyEndpoints.ValidatePasskeyAssertion)
     .DisableAntiforgery();

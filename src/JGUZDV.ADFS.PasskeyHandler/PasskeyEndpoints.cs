@@ -114,7 +114,7 @@ internal class PasskeyEndpoints
         }
 
         var response = string.Join("\n", passkeys.Select(x => Base64Url.EncodeToString(x)));
-        return Results.Json(response);
+        return Results.Content(response, "plain/text");
     }
 
     private record HttpClaim(string Type, string Value);

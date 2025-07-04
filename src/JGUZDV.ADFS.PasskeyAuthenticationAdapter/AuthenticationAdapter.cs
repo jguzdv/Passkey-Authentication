@@ -170,6 +170,7 @@ public class AuthenticationAdapter : IAuthenticationAdapter
     {
         var uriBuilder = new UriBuilder(_config.PasskeyHandlerUrl)
         {
+            Path = "credential-ids",
             Query = $"upn={userPrincipalName}"
         };
 
