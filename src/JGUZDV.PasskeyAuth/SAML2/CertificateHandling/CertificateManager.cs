@@ -94,7 +94,7 @@ internal class CertificateManager(
         {
             try
             {
-                var pfx = new X509Certificate2(certFile, _options.Value.CertificatePassword);
+                var pfx = X509CertificateLoader.LoadPkcs12FromFile(certFile, _options.Value.CertificatePassword);
                 _container.AddCertificate(pfx);
             }
             catch (Exception ex)

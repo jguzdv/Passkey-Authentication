@@ -1,4 +1,3 @@
-using System.Buffers.Text;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.Versioning;
@@ -14,6 +13,7 @@ public class ActiveDirectoryService
     private readonly IOptions<ActiveDirectoryOptions> _adOptions;
     private readonly ILogger<ActiveDirectoryService> _logger;
 
+    private List<string>? _ldapServers;
     
     public ActiveDirectoryService(IOptions<ActiveDirectoryOptions> adOptions, ILogger<ActiveDirectoryService> logger)
     {
@@ -210,19 +210,6 @@ public class ActiveDirectoryService
     }
 
 
-    private string? GetPDCEmulator()
-    {
-        if (_adOptions.Value.DomainName == null)
-        {
-            _logger.LogWarning("No domain name configured, cannot query PDC emulator.");
-            return null;
-        }
-
-        var ctx = new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName);
-        var domain = Domain.GetDomain(ctx);
-        return domain.PdcRoleOwner.Name;
-    }
-
     private List<string> GetADServers()
     {
         var directoryContext = _adOptions.Value.DomainName != null
@@ -248,13 +235,13 @@ public class ActiveDirectoryService
 
     private List<SearchResult> PerformSearchWithRetry(string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
     {
-        var ldapServers = GetADServers();
+        _ldapServers ??= GetADServers();
 
-        for (var i = 0; i < ldapServers.Count; i++)
+        for (var i = 0; i < _ldapServers.Count; i++)
         {
             try
             {
-                var result = PerformSearch(ldapServers[i], basePath, ldapFilter, propertiesToLoad, scope);
+                var result = PerformSearch(_ldapServers[i], basePath, ldapFilter, propertiesToLoad, scope);
                 if (result.Count > 0)
                 {
                     return result;
@@ -262,7 +249,7 @@ public class ActiveDirectoryService
             }
             catch (DirectoryServicesCOMException ex)
             {
-                _logger.LogWarning(ex, "Failed to perform search on {ldapServer} for {basePath} with filter {ldapFilter}. Retrying with next server.", ldapServers[i], basePath, ldapFilter);
+                _logger.LogWarning(ex, "Failed to perform search on {ldapServer} for {basePath} with filter {ldapFilter}. Retrying with next server.", _ldapServers[i], basePath, ldapFilter);
             }
         }
 

@@ -10,7 +10,6 @@ using JGUZDV.PasskeyAuth.Endpoints;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 
-using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;

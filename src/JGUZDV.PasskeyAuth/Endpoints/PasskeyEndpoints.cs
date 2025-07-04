@@ -34,8 +34,11 @@ public static class PasskeyEndpoints
         ILogger<SecurityAudit> auditLogger)
     {
         var assertionOptions = fido2.GetAssertionOptions(
-            [],
-            UserVerificationRequirement.Required
+            new()
+            {
+                AllowedCredentials = [],
+                UserVerification = UserVerificationRequirement.Required,
+            }
         );
 
         var jsonFidoAssertionOptions = assertionOptions.ToJson();

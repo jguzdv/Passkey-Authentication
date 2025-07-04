@@ -1,3 +1,4 @@
+using System.Buffers.Text;
 using System.Globalization;
 using System.Security.Claims;
 
@@ -28,10 +29,10 @@ public class PasskeyHandler(
         CancellationToken cancellationToken)
     {
         //Read users passkey from active directory
-        var passkeyDescriptor = adService.GetPasskeyFromCredentialId(assertionResponse.Id);
+        var passkeyDescriptor = adService.GetPasskeyFromCredentialId(assertionResponse.RawId);
         if (passkeyDescriptor == null)
         {
-            _logger.LogDebug("An logon attempt failed, due to an unkown passkey {passkeyId}", Convert.ToBase64String(assertionResponse.Id));
+            _logger.LogDebug("An logon attempt failed, due to an unkown passkey {passkeyId}", assertionResponse.Id);
             return (null, Results.Unauthorized());
         }
 
@@ -95,7 +96,7 @@ public class PasskeyHandler(
             ("amr", "FIDO2Passkey"),
             ("amr", "MFA"),
             ("mfa_auth_time", _timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture)),
-            ("fido2_cred_id", Base64Url.Encode(passkey.CredentialId))
+            ("fido2_cred_id", Base64Url.EncodeToString(passkey.CredentialId))
         };
 
         return result;

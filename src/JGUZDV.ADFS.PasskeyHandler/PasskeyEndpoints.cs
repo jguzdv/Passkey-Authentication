@@ -59,7 +59,7 @@ internal class PasskeyEndpoints
                 return Results.BadRequest("Request:MissingField");
             }
 
-            var passkeyDescriptor = adService.GetPasskeyFromCredentialId(assertionResponse.Id);
+            var passkeyDescriptor = adService.GetPasskeyFromCredentialId(assertionResponse.RawId);
             if (passkeyDescriptor == null)
             {
                 return Results.BadRequest("Passkey:UnknownCredential");
