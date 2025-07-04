@@ -83,7 +83,7 @@ internal class PasskeyEndpoints
                 },
                 cancellationToken);
 
-            adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, timeProvider.GetUtcNow());
+            adService.UpdatePasskeyLastUsed(passkeyDescriptor.DirectoryEntry, timeProvider.GetUtcNow());
 
             var mfaAuthTime = timeProvider.GetUtcNow().ToUnixTimeSeconds().ToString("D", CultureInfo.InvariantCulture);
             var fido2CredId = Base64Url.EncodeToString(passkeyDescriptor.CredentialId);
@@ -100,6 +100,21 @@ internal class PasskeyEndpoints
             logger.LogWarning(ex, "MakeAssertionAsync threw an exception.");
             return Results.Unauthorized();
         }
+    }
+
+    public static IResult GetUserPasskeyIds(
+        [FromQuery(Name = "upn")] string userPrincipalName,
+        ActiveDirectoryService adService)
+    {
+
+        var passkeys = adService.GetUserPasskeyIds(userPrincipalName);
+        if (passkeys == null || passkeys.Count == 0)
+        {
+            return Results.NotFound("No passkeys found for the specified user.");
+        }
+
+        var response = string.Join("\n", passkeys.Select(x => Base64Url.EncodeToString(x)));
+        return Results.Json(response);
     }
 
     private record HttpClaim(string Type, string Value);

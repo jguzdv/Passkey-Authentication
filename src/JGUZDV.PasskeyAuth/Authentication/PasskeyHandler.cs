@@ -70,7 +70,7 @@ public class PasskeyHandler(
             return (null, Results.Unauthorized());
         }
 
-        adService.UpdatePasskeyLastUsed(passkeyDescriptor.DistinguishedName, now);
+        adService.UpdatePasskeyLastUsed(passkeyDescriptor.DirectoryEntry, now);
 
         return (passkeyDescriptor, null);
     }

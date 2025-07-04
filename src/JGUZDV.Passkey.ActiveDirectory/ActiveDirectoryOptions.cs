@@ -6,7 +6,7 @@ public class ActiveDirectoryOptions : IValidatableObject
 {
     public required string BaseOU { get; set; }
 
-    public string? LdapServer { get; set; }
+    public required string LdapServer { get; set; }
 
     public string? DomainName { get; set; }
 
@@ -14,9 +14,9 @@ public class ActiveDirectoryOptions : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrWhiteSpace(LdapServer) && string.IsNullOrWhiteSpace(DomainName))
+        if(string.IsNullOrWhiteSpace(LdapServer))
         {
-            yield return new ValidationResult("LdapServer or DomainName is required", [nameof(LdapServer), nameof(DomainName)]);
+            yield return new ValidationResult("LdapServer is required ", [nameof(LdapServer)]);
         }
 
         if (string.IsNullOrWhiteSpace(BaseOU))

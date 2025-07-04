@@ -1,8 +1,7 @@
+using System.Buffers.Text;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.Versioning;
-
-using JGUZDV.Passkey.ActiveDirectory.Extensions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,40 +14,54 @@ public class ActiveDirectoryService
     private readonly IOptions<ActiveDirectoryOptions> _adOptions;
     private readonly ILogger<ActiveDirectoryService> _logger;
 
-    private readonly string? _ldapServer;
-
+    
     public ActiveDirectoryService(IOptions<ActiveDirectoryOptions> adOptions, ILogger<ActiveDirectoryService> logger)
     {
         _adOptions = adOptions;
         _logger = logger;
-
-        if(!string.IsNullOrWhiteSpace(_adOptions.Value.DomainName))
-        {
-            var ctx = new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName);
-            var domain = Domain.GetDomain(ctx);
-
-            _ldapServer = domain.PdcRoleOwner.Name;
-        }
-        else
-        {
-            _ldapServer = _adOptions.Value.LdapServer;
-        }
     }
+
+
+    public List<byte[]>? GetUserPasskeyIds(string userPrincipalName)
+    {
+        var users = PerformSearchWithPDCRetry(
+            _adOptions.Value.BaseOU,
+            $"(&(userPrincipalName={userPrincipalName})(objectClass=User))",
+            ["distinguishedName"],
+            SearchScope.Subtree);
+
+        if (users.Count != 1)
+        {
+            _logger.LogWarning("No or multiple user(s) found with UPN {userPrincipalName} in {baseDN} on {ldapServer}", userPrincipalName, _adOptions.Value.BaseOU, _adOptions.Value.LdapServer);
+            return null;
+        }
+
+        var passkeys = PerformSearchWithPDCRetry(
+            (string)users[0].Properties["distinguishedName"][0]!,
+            "(objectClass=fIDOAuthenticatorDevice)",
+            ["distinguishedName", "fIDOAuthenticatorCredentialId"],
+            SearchScope.Subtree);
+
+        return passkeys.Count == 0
+            ? null
+            : [.. passkeys.Select(x => (byte[])(x.Properties["fIDOAuthenticatorCredentialId"][0]!))];
+    }
+
 
     public PasskeyDescriptor? GetPasskeyFromCredentialId(byte[] credentialId)
     {
         var credentialString = "\\" + BitConverter.ToString(credentialId).Replace("-", "\\");
 
-        using var passkeySearcher = new DirectorySearcher(
-            new DirectoryEntry($"LDAP://{_ldapServer}/{_adOptions.Value.BaseOU}"),
-            $"(&(objectClass=fIDOAuthenticatorDevice)(fIDOAuthenticatorCredentialId={credentialString}))",
-            ["distinguishedName", "userCertificate", "fIDOAuthenticatorAaguid", "flags"],
-            SearchScope.Subtree);
-
-        SearchResultCollection? passkeyResults;
+        List<SearchResult> passkeyResults;
         try
         {
-            passkeyResults = passkeySearcher.FindAll();
+            passkeyResults = PerformSearchWithPDCRetry(
+                _adOptions.Value.BaseOU,
+                $"(&(objectClass=fIDOAuthenticatorDevice)(fIDOAuthenticatorCredentialId={credentialString}))",
+                ["distinguishedName", "userCertificate", "fIDOAuthenticatorAaguid", "flags"],
+                SearchScope.Subtree);
+
+        
             if (passkeyResults.Count == 0)
             {
                 return null;
@@ -56,7 +69,7 @@ public class ActiveDirectoryService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to search for passkey with credentialId {credentialId}, on {server} in {baseOu}", credentialString, _ldapServer, _adOptions.Value.BaseOU);
+            _logger.LogError(ex, "Failed to search for passkey with credentialId {credentialId}, on {domain} in {baseOu}", credentialString, _adOptions.Value.DomainName, _adOptions.Value.BaseOU);
             return null;
         }
 
@@ -71,19 +84,18 @@ public class ActiveDirectoryService
         var passkeyDN = (string)passkey.Properties["distinguishedName"][0];
         var userDN = passkeyDN.Split(',', 3).Last();
 
-        using var userSearcher = new DirectorySearcher(
-            new DirectoryEntry($"LDAP://{_ldapServer}/{userDN}"),
+        var userResult = PerformSearchWithPDCRetry(
+            userDN,
             $"(objectClass=User)",
             ["distinguishedName", "userPrincipalName", "objectGuid", "eduPersonPrincipalName"],
             SearchScope.Base);
 
-        var userResult = userSearcher.FindOne();
-        if (userResult == null)
+        if (userResult.Count == 0)
         {
             return null;
         }
 
-        var owner = GetPasskeyOwnerInfo(userResult);
+        var owner = GetPasskeyOwnerInfo(userResult[0]);
 
         return GetPasskeyDescriptor(credentialId, passkey, owner);
     }
@@ -127,11 +139,10 @@ public class ActiveDirectoryService
         );
     }
 
-    public void UpdatePasskeyLastUsed(string passkeyDN, DateTimeOffset lastUsageTime)
+    public void UpdatePasskeyLastUsed(DirectoryEntry passkeyEntry, DateTimeOffset lastUsageTime)
     {
         try
         {
-            var passkeyEntry = new DirectoryEntry($"LDAP://{_ldapServer}/{passkeyDN}");
             var lastLogon = lastUsageTime.ToFileTime();
 
             passkeyEntry.Properties["lastLogonTimestamp"].SetLargeInteger(lastLogon);
@@ -140,7 +151,7 @@ public class ActiveDirectoryService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to update lastLogonTimestamp for {passkeyDN}", passkeyDN);
+            _logger.LogError(ex, "Failed to update lastLogonTimestamp for {passkeyPath}", passkeyEntry.Path);
         }
     }
 
@@ -196,5 +207,45 @@ public class ActiveDirectoryService
         }
 
         return true;
+    }
+
+
+    private string? GetPDCEmulator()
+    {
+        if (_adOptions.Value.DomainName == null)
+        {
+            _logger.LogWarning("No domain name configured, cannot query PDC emulator.");
+            return null;
+        }
+
+        var ctx = new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName);
+        var domain = Domain.GetDomain(ctx);
+        return domain.PdcRoleOwner.Name;
+    }
+
+    private List<SearchResult> PerformSearchWithPDCRetry(string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
+    {
+        List<SearchResult> result = PerformSearch(_adOptions.Value.LdapServer, basePath, ldapFilter, propertiesToLoad, scope);
+
+        // If the search did not return any results, we will try to query the PDC emulator.
+        if (result.Count == 0)
+        {
+            if (GetPDCEmulator() is string ldapServer)
+            {
+                result = PerformSearch(ldapServer, _adOptions.Value.BaseOU, ldapFilter, propertiesToLoad, scope);
+            }
+        }
+
+        return result;
+    }
+
+
+    private List<SearchResult> PerformSearch(string ldapServer, string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
+    {
+        using var searcher = new DirectorySearcher(
+            new DirectoryEntry($"LDAP://{ldapServer}:{_adOptions.Value.LdapPort}/{basePath}"),
+            ldapFilter, propertiesToLoad, scope);
+
+        return [.. searcher.FindAll().Cast<SearchResult>()];
     }
 }

@@ -83,4 +83,3 @@ export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson,
 export function isBrowserCapable() {
     return !!navigator.credentials;
 }
-//# sourceMappingURL=PasskeyAuth.js.map
