@@ -157,7 +157,6 @@ public class AuthenticationAdapter : IAuthenticationAdapter
             return;
         }
 
-        // TODO: Consider moving this into the passkey handler, so we can backup from the pdc here as well
         var passkeyIds = GetPasskeyCredentialIds(userPrincipalName);
 
         if (passkeyIds?.Any() == true)
