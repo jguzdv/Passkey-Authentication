@@ -158,13 +158,36 @@ public class AuthenticationAdapter : IAuthenticationAdapter
         }
 
         // TODO: Consider moving this into the passkey handler, so we can backup from the pdc here as well
-        var passkeyIds = _config.DomainName != null
-            ? ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.DomainName, _config.LdapPort)
-            : ActiveDirectory.GetUserPasskeyIds(userPrincipalName, _config.SearchBaseDN!, _config.LdapServer!);
+        var passkeyIds = GetPasskeyCredentialIds(userPrincipalName);
 
         if (passkeyIds?.Any() == true)
         {
             context.SavePasskeyCredentialIds(passkeyIds);
+        }
+    }
+
+
+    private string[]? GetPasskeyCredentialIds(string userPrincipalName)
+    {
+        var uriBuilder = new UriBuilder(_config.PasskeyHandlerUrl)
+        {
+            Query = $"upn={userPrincipalName}"
+        };
+
+        var httpRequest = WebRequest.CreateHttp(uriBuilder.ToString());
+        httpRequest.Accept = "plain/text";
+
+        using var response = (HttpWebResponse)httpRequest.GetResponse();
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            throw new InvalidOperationException("GetPasskeyCredentialIds [PasskeyAuthenticationAdapter]: Could not retrieve Passkey CredentialIds from PasskeyHandler.");
+        }
+
+        using var stream = response.GetResponseStream();
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        {
+            var responseString = reader.ReadToEnd();
+            return responseString.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 
