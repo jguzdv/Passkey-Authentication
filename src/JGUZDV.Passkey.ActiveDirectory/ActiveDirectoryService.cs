@@ -24,7 +24,7 @@ public class ActiveDirectoryService
 
     public List<byte[]>? GetUserPasskeyIds(string userPrincipalName)
     {
-        var users = PerformSearchWithPDCRetry(
+        var users = PerformSearchWithRetry(
             _adOptions.Value.BaseOU,
             $"(&(userPrincipalName={userPrincipalName})(objectClass=User))",
             ["distinguishedName"],
@@ -36,7 +36,7 @@ public class ActiveDirectoryService
             return null;
         }
 
-        var passkeys = PerformSearchWithPDCRetry(
+        var passkeys = PerformSearchWithRetry(
             (string)users[0].Properties["distinguishedName"][0]!,
             "(objectClass=fIDOAuthenticatorDevice)",
             ["distinguishedName", "fIDOAuthenticatorCredentialId"],
@@ -55,7 +55,7 @@ public class ActiveDirectoryService
         List<SearchResult> passkeyResults;
         try
         {
-            passkeyResults = PerformSearchWithPDCRetry(
+            passkeyResults = PerformSearchWithRetry(
                 _adOptions.Value.BaseOU,
                 $"(&(objectClass=fIDOAuthenticatorDevice)(fIDOAuthenticatorCredentialId={credentialString}))",
                 ["distinguishedName", "userCertificate", "fIDOAuthenticatorAaguid", "flags"],
@@ -84,7 +84,7 @@ public class ActiveDirectoryService
         var passkeyDN = (string)passkey.Properties["distinguishedName"][0];
         var userDN = passkeyDN.Split(',', 3).Last();
 
-        var userResult = PerformSearchWithPDCRetry(
+        var userResult = PerformSearchWithRetry(
             userDN,
             $"(objectClass=User)",
             ["distinguishedName", "userPrincipalName", "objectGuid", "eduPersonPrincipalName"],
@@ -223,20 +223,50 @@ public class ActiveDirectoryService
         return domain.PdcRoleOwner.Name;
     }
 
-    private List<SearchResult> PerformSearchWithPDCRetry(string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
+    private List<string> GetADServers()
     {
-        List<SearchResult> result = PerformSearch(_adOptions.Value.LdapServer, basePath, ldapFilter, propertiesToLoad, scope);
+        var directoryContext = _adOptions.Value.DomainName != null
+            ? new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName)
+            : new DirectoryContext(DirectoryContextType.Domain);
 
-        // If the search did not return any results, we will try to query the PDC emulator.
-        if (result.Count == 0)
+        var domainController = _adOptions.Value.DomainSite != null
+            ? DomainController.FindOne(directoryContext, _adOptions.Value.DomainSite, LocatorOptions.ForceRediscovery)
+            : DomainController.FindOne(directoryContext, LocatorOptions.ForceRediscovery);
+
+        if (domainController.Roles.Contains(ActiveDirectoryRole.PdcRole))
         {
-            if (GetPDCEmulator() is string ldapServer)
+            return [domainController.Name];
+        }
+
+        var domain = Domain.GetDomain(directoryContext);
+        var pdcRoleOwner = domain.PdcRoleOwner;
+
+        return pdcRoleOwner != null
+            ? [domainController.Name, pdcRoleOwner.Name]
+            : [domainController.Name];
+    }
+
+    private List<SearchResult> PerformSearchWithRetry(string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
+    {
+        var ldapServers = GetADServers();
+
+        for (var i = 0; i < ldapServers.Count; i++)
+        {
+            try
             {
-                result = PerformSearch(ldapServer, _adOptions.Value.BaseOU, ldapFilter, propertiesToLoad, scope);
+                var result = PerformSearch(ldapServers[i], basePath, ldapFilter, propertiesToLoad, scope);
+                if (result.Count > 0)
+                {
+                    return result;
+                }
+            }
+            catch (DirectoryServicesCOMException ex)
+            {
+                _logger.LogWarning(ex, "Failed to perform search on {ldapServer} for {basePath} with filter {ldapFilter}. Retrying with next server.", ldapServers[i], basePath, ldapFilter);
             }
         }
 
-        return result;
+        return [];
     }
 
 
