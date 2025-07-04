@@ -1,8 +1,7 @@
+using System.Buffers.Text;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.Versioning;
-
-using JGUZDV.Passkey.ActiveDirectory.Extensions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,42 +21,30 @@ public class ActiveDirectoryService
         _logger = logger;
     }
 
-    private string? GetPDCEmulator()
+
+    public List<byte[]>? GetUserPasskeyIds(string userPrincipalName)
     {
-        if(_adOptions.Value.DomainName == null)
+        var users = PerformSearchWithPDCRetry(
+            _adOptions.Value.BaseOU,
+            $"(&(userPrincipalName={userPrincipalName})(objectClass=User))",
+            ["distinguishedName"],
+            SearchScope.Subtree);
+
+        if (users.Count != 1)
         {
-            _logger.LogWarning("No domain name configured, cannot query PDC emulator.");
+            _logger.LogWarning("No or multiple user(s) found with UPN {userPrincipalName} in {baseDN} on {ldapServer}", userPrincipalName, _adOptions.Value.BaseOU, _adOptions.Value.LdapServer);
             return null;
         }
 
-        var ctx = new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName);
-        var domain = Domain.GetDomain(ctx);
-        return domain.PdcRoleOwner.Name;
-    }
+        var passkeys = PerformSearchWithPDCRetry(
+            (string)users[0].Properties["distinguishedName"][0]!,
+            "(objectClass=fIDOAuthenticatorDevice)",
+            ["distinguishedName", "fIDOAuthenticatorCredentialId"],
+            SearchScope.Subtree);
 
-    private List<SearchResult> PerformSearchWithPDCRetry(string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
-    {
-        List<SearchResult> result = PerformSearch(_adOptions.Value.LdapServer, basePath, ldapFilter, propertiesToLoad, scope);
-
-        // If the search did not return any results, we will try to query the PDC emulator.
-        if (result.Count == 0)
-        {
-            if (GetPDCEmulator() is string ldapServer)
-            {
-                result = PerformSearch(ldapServer, _adOptions.Value.BaseOU, ldapFilter, propertiesToLoad, scope);
-            }
-        }
-
-        return result;
-    }
-
-    private List<SearchResult> PerformSearch(string ldapServer, string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
-    {
-        using var searcher = new DirectorySearcher(
-            new DirectoryEntry($"LDAP://{ldapServer}:{_adOptions.Value.LdapPort}/{basePath}"),
-            ldapFilter, propertiesToLoad, scope);
-
-        return [.. searcher.FindAll().Cast<SearchResult>()];
+        return passkeys.Count == 0
+            ? null
+            : [.. passkeys.Select(x => (byte[])(x.Properties["fIDOAuthenticatorCredentialId"][0]!))];
     }
 
 
@@ -220,5 +207,45 @@ public class ActiveDirectoryService
         }
 
         return true;
+    }
+
+
+    private string? GetPDCEmulator()
+    {
+        if (_adOptions.Value.DomainName == null)
+        {
+            _logger.LogWarning("No domain name configured, cannot query PDC emulator.");
+            return null;
+        }
+
+        var ctx = new DirectoryContext(DirectoryContextType.Domain, _adOptions.Value.DomainName);
+        var domain = Domain.GetDomain(ctx);
+        return domain.PdcRoleOwner.Name;
+    }
+
+    private List<SearchResult> PerformSearchWithPDCRetry(string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
+    {
+        List<SearchResult> result = PerformSearch(_adOptions.Value.LdapServer, basePath, ldapFilter, propertiesToLoad, scope);
+
+        // If the search did not return any results, we will try to query the PDC emulator.
+        if (result.Count == 0)
+        {
+            if (GetPDCEmulator() is string ldapServer)
+            {
+                result = PerformSearch(ldapServer, _adOptions.Value.BaseOU, ldapFilter, propertiesToLoad, scope);
+            }
+        }
+
+        return result;
+    }
+
+
+    private List<SearchResult> PerformSearch(string ldapServer, string basePath, string ldapFilter, string[] propertiesToLoad, SearchScope scope)
+    {
+        using var searcher = new DirectorySearcher(
+            new DirectoryEntry($"LDAP://{ldapServer}:{_adOptions.Value.LdapPort}/{basePath}"),
+            ldapFilter, propertiesToLoad, scope);
+
+        return [.. searcher.FindAll().Cast<SearchResult>()];
     }
 }

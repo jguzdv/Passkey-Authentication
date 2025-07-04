@@ -102,5 +102,20 @@ internal class PasskeyEndpoints
         }
     }
 
+    public static IResult GetUserPasskeyIds(
+        [FromQuery(Name = "upn")] string userPrincipalName,
+        ActiveDirectoryService adService)
+    {
+
+        var passkeys = adService.GetUserPasskeyIds(userPrincipalName);
+        if (passkeys == null || passkeys.Count == 0)
+        {
+            return Results.NotFound("No passkeys found for the specified user.");
+        }
+
+        var response = string.Join("\n", passkeys.Select(x => Base64Url.EncodeToString(x)));
+        return Results.Json(response);
+    }
+
     private record HttpClaim(string Type, string Value);
 }
