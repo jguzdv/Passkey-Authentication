@@ -173,8 +173,10 @@ public class AuthenticationAdapter : IAuthenticationAdapter
     {
         var credentialIds = context.GetPasskeyCredentialIds();
 
-        var uriBuilder = new UriBuilder(_config.PasskeyHandlerUrl);
-        uriBuilder.Query = string.Join("&", credentialIds.Select(x => $"pci={x}"));
+        var uriBuilder = new UriBuilder(_config.PasskeyHandlerUrl)
+        {
+            Query = string.Join("&", credentialIds.Select(x => $"pci={x}"))
+        };
 
         var httpRequest = WebRequest.CreateHttp(uriBuilder.ToString());
         httpRequest.Accept = "application/json";
@@ -204,7 +206,7 @@ public class AuthenticationAdapter : IAuthenticationAdapter
             return false;
         }
 
-        StringBuilder postData = new StringBuilder();
+        var postData = new StringBuilder();
         AppendUrlEncoded(postData, "assertionOptions", assertionOptions!);
         AppendUrlEncoded(postData, "assertionResponse", assertionResponse!);
         var postBytes = Encoding.UTF8.GetBytes(postData.ToString());
