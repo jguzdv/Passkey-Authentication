@@ -32,7 +32,7 @@ public class ActiveDirectoryService
 
         if (users.Count != 1)
         {
-            _logger.LogWarning("No or multiple user(s) found with UPN {userPrincipalName} in {baseDN} on {ldapServer}", userPrincipalName, _adOptions.Value.BaseOU, _adOptions.Value.LdapServer);
+            _logger.LogWarning("No or multiple user(s) found with UPN {userPrincipalName} in {baseDN}", userPrincipalName, _adOptions.Value.BaseOU);
             return null;
         }
 
