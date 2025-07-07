@@ -1,9 +1,5 @@
 using System.Diagnostics;
-using System.Net;
 using System.Security.Claims;
-using System.Xml;
-
-using Azure.Core;
 
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore;
