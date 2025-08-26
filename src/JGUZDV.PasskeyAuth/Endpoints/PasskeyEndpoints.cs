@@ -6,7 +6,7 @@ using Fido2NetLib.Objects;
 using JGUZDV.ActiveDirectory.Claims;
 using JGUZDV.Passkey.ActiveDirectory;
 using JGUZDV.PasskeyAuth.Authentication;
-
+using JGUZDV.PasskeyAuth.OpenTelemetry;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +31,7 @@ public static class PasskeyEndpoints
         HttpContext context,
         IFido2 fido2,
         TimeProvider timeProvider,
+        MeterContainer meterContainer,
         ILogger<SecurityAudit> auditLogger)
     {
         var assertionOptions = fido2.GetAssertionOptions(
@@ -43,6 +44,8 @@ public static class PasskeyEndpoints
 
         var jsonFidoAssertionOptions = assertionOptions.ToJson();
         context.Session.SetString(Fido2SessionKey, jsonFidoAssertionOptions);
+
+        meterContainer.CountInitPasskeyAssertion();
 
         return Results.Content(jsonFidoAssertionOptions, "application/json");
     }
@@ -101,7 +104,7 @@ public static class PasskeyEndpoints
             return Results.LocalRedirect(returnUrl);
         }
 
-        
+
         // If the user does not have a returnUrl, we create a one-time-password and redirect them to the display page.
         var oneTimePassword = await otpHandler.CreateOneTimePasswordAsync(context, identity, ct);
         context.Session.SetString(OTPSessionKey, oneTimePassword);

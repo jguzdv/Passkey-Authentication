@@ -7,6 +7,7 @@ using JGUZDV.Passkey.ActiveDirectory;
 using JGUZDV.PasskeyAuth.Authentication;
 using JGUZDV.PasskeyAuth.Configuration;
 using JGUZDV.PasskeyAuth.Endpoints;
+using JGUZDV.PasskeyAuth.OpenTelemetry;
 using JGUZDV.PasskeyAuth.SAML2.CertificateHandling;
 using JGUZDV.PasskeyAuth.SAML2.MetadataHandling;
 
@@ -31,6 +32,9 @@ services.AddOptions<ActiveDirectoryOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+// OpenTelemetry for monitoring. Needs the OpenTelemetry config section to work properly.
+builder.Builder.AddJGUZDVOpenTelemetry();
+services.AddSingleton<MeterContainer>();
 
 services.AddScoped<ActiveDirectoryService>();
 
