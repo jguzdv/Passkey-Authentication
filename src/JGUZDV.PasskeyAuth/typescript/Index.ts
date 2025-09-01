@@ -31,7 +31,7 @@ async function handlePasskeyButtonClick(event: Event) {
 }
 
 async function executePage() {
-    const isPasskeyCapable = Passkeys.isBrowserCapable();
+    const isPasskeyCapable = await Passkeys.isBrowserCapable();
     document.body.setAttribute("data-passkey-capable", isPasskeyCapable ? "true" : "false");
 
     if (isPasskeyCapable) {
