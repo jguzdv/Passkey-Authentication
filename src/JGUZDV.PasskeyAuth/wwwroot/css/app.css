@@ -8,6 +8,7 @@ body {
 .content {
     max-width: 400px;
     width: 100%;
+    padding-inline: 0.5rem;
 
     .imgs {
         display: flex;
