@@ -95,9 +95,7 @@ export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson:
 export async function isBrowserCapable(): Promise<boolean> {
     if (window.PublicKeyCredential && PublicKeyCredential.getClientCapabilities) {
         const capabilities = await PublicKeyCredential.getClientCapabilities();
-        if (capabilities.passkeyPlatformAuthenticator === true) {
-            return true;
-        }
+        return capabilities.conditionalGet === true;
     }
 
     return false;
