@@ -16,23 +16,23 @@
 
   <ItemGroup>
     <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.0.0" />
-    <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.5.16" />
-    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="9.0.6" />
+    <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.5.23" />
+    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="9.0.8" />
 
-    <PackageReference Include="System.DirectoryServices" Version="9.0.6" />
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.12.1" />
+    <PackageReference Include="System.DirectoryServices" Version="9.0.8" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
 
     <PackageReference Include="JGUZDV.AspNetCore.Extensions.OpenTelemetry" Version="1.1.3" />
 
-    <PackageReference Include="Fido2.AspNet" Version="4.0.0-beta.17" />
-    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.15.3" />
+    <PackageReference Include="Fido2.AspNet" Version="4.0.0" />
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.16.1" />
     <PackageReference Include="JGUZDV.AspNetCore.DataProtection" Version="2.0.1" />
     <PackageReference Include="JGUZDV.AspNetCore.Logging" Version="1.2.14" />
   </ItemGroup>
 
   <!-- Build Typescript on build -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.8.3">
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
