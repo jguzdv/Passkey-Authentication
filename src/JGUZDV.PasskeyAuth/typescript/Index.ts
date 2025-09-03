@@ -12,8 +12,20 @@ async function handlePasskeyAuth(passkeyOptionsUrl: string) {
     const publicKeyOptionsResponse = await fetch(passkeyOptionsUrl);
     const publicKeyOptionsJson = await publicKeyOptionsResponse.text();
 
-    const publicKeyCredentialJson = await Passkeys.getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson, updateStatusMessage);
-    (<HTMLInputElement>document.getElementById("assertion-response")).value = publicKeyCredentialJson;
+    const startTime = performance.now();
+    try {
+        const publicKeyCredentialJson = await Passkeys.getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson, updateStatusMessage);
+        (<HTMLInputElement>document.getElementById("assertion-response")).value = publicKeyCredentialJson;
+    }
+    catch {
+        const duration = performance.now() - startTime;
+        if (duration < 500) {
+            console.debug("Detected very small runtime for passkey authentication. Assuming browser refused to allow passkey usage.")
+            document.body.setAttribute("data-passkey-capable", "false");
+        }
+
+        return;
+    }
 
     updateStatusMessage("SubmitAssertionResponse");
     (<HTMLFormElement>document.getElementById("auth-form")).submit();
