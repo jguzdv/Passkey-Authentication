@@ -1,74 +1,64 @@
-function base64UrlToUint8Array(base64Url: string): Uint8Array {
+function base64UrlToUint8Array(base64Url) {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const binary = atob(base64);
     const array = new Uint8Array(binary.length);
-
     for (let i = 0; i < binary.length; i++) {
         array[i] = binary.charCodeAt(i);
     }
-
     return array;
-};
-
-function arrayBufferToBase64Url(arrayBuffer: ArrayBuffer): string {
+}
+;
+function arrayBufferToBase64Url(arrayBuffer) {
     const binary = String.fromCharCode(...new Uint8Array(arrayBuffer));
     const base64 = btoa(binary);
-
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-};
-
-function getNavigatorCredential(publicKeyOptions: PublicKeyCredentialRequestOptions, statusCallback: (key: string) => void): Promise<PublicKeyCredential> {
+}
+;
+function getNavigatorCredential(publicKeyOptions, statusCallback) {
     statusCallback("GetAssertion");
-    return new Promise((resolve, reject) => { 
+    return new Promise((resolve, reject) => {
         navigator.credentials
             .get({
-                publicKey: publicKeyOptions
-            })
+            publicKey: publicKeyOptions
+        })
             .then((credential) => {
-                if (!credential) {
-                    reject(new Error('No credential returned'));
-                }
-
-                resolve(credential as PublicKeyCredential);
-            })
-            .catch((error: Error) => {
-                statusCallback("GetAssertionError")
-                reject(error);
-            });
+            if (!credential) {
+                reject(new Error('No credential returned'));
+            }
+            resolve(credential);
+        })
+            .catch((error) => {
+            statusCallback("GetAssertionError");
+            reject(error);
         });
-};
-
-
-function jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson: string, statusCallback: (key: string) => void): PublicKeyCredentialRequestOptions {
+    });
+}
+;
+function jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson, statusCallback) {
     statusCallback("ParseAssertionOptions");
-    let publicKeyOptions = JSON.parse(publicKeyOptionsJson)
+    let publicKeyOptions = JSON.parse(publicKeyOptionsJson);
     let assertionOptions = {
         challenge: base64UrlToUint8Array(publicKeyOptions.challenge),
         rpId: publicKeyOptions.rpId,
         timeout: publicKeyOptions.timeout,
         userVerification: publicKeyOptions.userVerification
-    } as PublicKeyCredentialRequestOptions;
-
-
+    };
     if (publicKeyOptions.allowCredentials && publicKeyOptions.allowCredentials.length > 0) {
-        assertionOptions.allowCredentials = publicKeyOptions.allowCredentials.map((ec: any) => {
+        assertionOptions.allowCredentials = publicKeyOptions.allowCredentials.map((ec) => {
             return {
                 id: base64UrlToUint8Array(ec.id),
                 type: ec.type
             };
         });
-    } else {
+    }
+    else {
         assertionOptions.allowCredentials = [];
     }
-
     return assertionOptions;
-};
-
-
-
-function convertPublicKeyCredentialToJson(publicKeyCredential: PublicKeyCredential, statusCallback: (key: string) => void): string {
-    const response = publicKeyCredential.response as AuthenticatorAssertionResponse;
-
+}
+;
+function convertPublicKeyCredentialToJson(publicKeyCredential, statusCallback) {
+    const response = publicKeyCredential.response;
     statusCallback("ConvertAssertionResponse");
     let publicKeyCredentialJson = {
         id: publicKeyCredential.id,
@@ -81,22 +71,19 @@ function convertPublicKeyCredentialToJson(publicKeyCredential: PublicKeyCredenti
             userHandle: response.userHandle && arrayBufferToBase64Url(response.userHandle)
         }
     };
-
     return JSON.stringify(publicKeyCredentialJson);
-};
-
-export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson: string, statusCallback: (key: string) => void): Promise<string> {
+}
+;
+export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson, statusCallback) {
     let publicKeyOptions = jsonToPublicKeyCredentialRequestOptions(publicKeyOptionsJson, statusCallback);
     let publicKeyCredential = await getNavigatorCredential(publicKeyOptions, statusCallback);
-
     return convertPublicKeyCredentialToJson(publicKeyCredential, statusCallback);
-};
-
-export async function isBrowserCapable(): Promise<boolean> {
+}
+;
+export async function isBrowserCapable() {
     if (window.PublicKeyCredential && PublicKeyCredential.getClientCapabilities) {
         const capabilities = await PublicKeyCredential.getClientCapabilities();
         return capabilities.conditionalGet === true;
     }
-
     return false;
 }

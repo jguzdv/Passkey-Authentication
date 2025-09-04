@@ -41,4 +41,3 @@ bld/
 #wwwroot/
 
 /src/JGUZDV.PasskeyAuth/wwwroot/aaguid/**/*.json
-/src/JGUZDV.PasskeyAuth/wwwroot/ts/*.js

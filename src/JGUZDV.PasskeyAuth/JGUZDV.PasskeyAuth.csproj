@@ -32,36 +32,18 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.2">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; native; contentfiles; analyzers;</IncludeAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JGUZDV.Passkey.ActiveDirectory\JGUZDV.Passkey.ActiveDirectory.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\ts\" />
+  </ItemGroup>
 
 
   <Target Name="UpdateFIDOMetadata" BeforeTargets="PrepareForPublish">
     <Exec Command="pwsh.exe -ExecutionPolicy Bypass -Command &quot;&amp; ../scripts/Update-Metadata.ps1&quot;" />
-  </Target>
-
-
-  <!-- https://github.com/microsoft/TypeScript/issues/60538#issuecomment-2884509647 -->
-  <Target Name="FixTypescriptCompileDependencies" BeforeTargets="BeforeBuild">
-    <PropertyGroup>
-      <PrepareForBuildDependsOn>
-        FindConfigFiles;
-        CompileTypeScript;
-        CompileTypeScriptWithTSConfig;
-        GetTypeScriptOutputForPublishing;
-        $(PrepareForBuildDependsOn)
-      </PrepareForBuildDependsOn>
-    </PropertyGroup>
-  </Target>
-
-  <Target Name="RemoveDuplicateTypeScriptOutputs" AfterTargets="GetTypeScriptOutputForPublishing">
-    <Message Importance="High" Text="GeneratedJavaScript files are: @(GeneratedJavaScript)" />
-    <ItemGroup>
-      <Content Remove="@(GeneratedJavaScript)" />
-    </ItemGroup>
   </Target>
 </Project>
