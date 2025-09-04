@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.0.0" />
-    <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.5.24" />
+    <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.5.25" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="9.0.8" />
 
     <PackageReference Include="System.DirectoryServices" Version="9.0.8" />
