@@ -19,7 +19,7 @@ function arrayBufferToBase64Url(arrayBuffer: ArrayBuffer): string {
 
 function getNavigatorCredential(publicKeyOptions: PublicKeyCredentialRequestOptions, statusCallback: (key: string) => void): Promise<PublicKeyCredential> {
     statusCallback("GetAssertion");
-    return new Promise((resolve, reject) => { 
+    return new Promise((resolve, reject) => {
         navigator.credentials
             .get({
                 publicKey: publicKeyOptions
@@ -93,10 +93,9 @@ export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson:
 };
 
 export async function isBrowserCapable(): Promise<boolean> {
-    if (window.PublicKeyCredential && PublicKeyCredential.getClientCapabilities) {
-        const capabilities = await PublicKeyCredential.getClientCapabilities();
-        return capabilities.conditionalGet === true;
-    }
-
-    return false;
+    // Test for 'PublicKeyCredential' availability seems to be the best currently available compromise for
+    // testing whether the browser can handle passkeys.
+    let checkIsAvailable = window.PublicKeyCredential !== undefined;
+    let checkIsFunction = typeof window.PublicKeyCredential === 'function';
+    return checkIsAvailable && checkIsFunction;
 }

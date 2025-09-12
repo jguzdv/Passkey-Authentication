@@ -13,7 +13,7 @@ builder.Services
     .AddCookie()
     .AddOpenIdConnect(opt =>
     {
-        opt.Bind("Authentication:OpenIdConnect");
+        builder.Configuration.GetSection("Authentication:OpenIdConnect").Bind(opt);
 
         opt.Authority = "https://login.uni-mainz.de/adfs";
         opt.ClientId = "ottenhus-test";
