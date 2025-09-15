@@ -81,9 +81,9 @@ export async function getNavigatorCredentialAsJsonFromJson(publicKeyOptionsJson,
 }
 ;
 export async function isBrowserCapable() {
-    if (window.PublicKeyCredential && PublicKeyCredential.getClientCapabilities) {
-        const capabilities = await PublicKeyCredential.getClientCapabilities();
-        return capabilities.conditionalGet === true;
-    }
-    return false;
+    // Test for 'PublicKeyCredential' availability seems to be the best currently available compromise for
+    // testing whether the browser can handle passkeys.
+    let checkIsAvailable = window.PublicKeyCredential !== undefined;
+    let checkIsFunction = typeof window.PublicKeyCredential === 'function';
+    return checkIsAvailable && checkIsFunction;
 }
