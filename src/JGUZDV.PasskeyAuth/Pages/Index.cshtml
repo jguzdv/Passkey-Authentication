@@ -12,6 +12,10 @@
     };
 }
 
+@section HeadContent {
+    <script type="module">@Html.Raw(Model.PageScript)</script>
+}
+
 @* Browser is passkey-capable *@
 <div class="passkey-capable">
     <form id="auth-form" name="auth-form" asp-route="@EndpointNames.PasskeyAssertion" asp-all-route-data="routeData" method="post" enctype="multipart/form-data">
@@ -49,5 +53,3 @@
         </div>
     }
 </div>
-
-<script type="module">@Html.Raw(Model.PageScript)</script>

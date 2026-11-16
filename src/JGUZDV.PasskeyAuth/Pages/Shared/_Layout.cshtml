@@ -7,12 +7,14 @@
         <base href="/" />
 
         <link rel="icon" href="img/JGU-Quader.ico" />
-    <link rel="icon" sizes="16x16 32x32 64x64" href="img/JGU-Quader.ico">
+        <link rel="icon" sizes="16x16 32x32 64x64" href="img/JGU-Quader.ico">
         <link rel="icon" sizes="180x180" href="img/JGU-Quader-180.png">
 
-        <link href="css/jg-ootstrap.css" rel="stylesheet" />
+        <style>@Html.Raw(JGUZDV.PasskeyAuth.InlineStyles.Bootstrap)</style>
         <link href="css/font-awesome/css/all.min.css" rel="stylesheet" />
-        <link href="css/app.css" rel="stylesheet" />
+        <style>@Html.Raw(JGUZDV.PasskeyAuth.InlineStyles.App)</style>
+
+        @RenderSection("HeadContent", required: false)
     </head>
     <body clickless="@ViewData["clickless"]">
         <div class="content">

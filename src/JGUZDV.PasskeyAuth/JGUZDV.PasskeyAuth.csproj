@@ -37,6 +37,10 @@
   <ItemGroup>
     <ProjectReference Include="..\JGUZDV.Passkey.ActiveDirectory\JGUZDV.Passkey.ActiveDirectory.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="css-source\*.css" />
+    <EmbeddedResource Include="css-source\*.css" LogicalName="JGUZDV.PasskeyAuth.css-source.%(Filename)%(Extension)" />
+  </ItemGroup>
 
   <Target Name="BundlePageScript" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)' != 'true'">
     <Error Condition="!Exists('$(MSBuildProjectDirectory)\node_modules\esbuild\bin\esbuild')" Text="esbuild is missing. Run npm ci in $(MSBuildProjectDirectory) before building." />

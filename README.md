@@ -125,7 +125,9 @@ This tool will work with any other SAML2 SP as well, but the ADFS integration is
 
 Install Node.js and npm, then run `npm ci` in `src\JGUZDV.PasskeyAuth` before building or publishing the project. The build type-checks the TypeScript and bundles the page script into the application assembly; the login page renders it inline rather than requesting separate JavaScript files. Run `npm ci` again when `package-lock.json` changes.
 
-If a Content Security Policy is configured for the deployed application, it must permit this inline module script, for example using a hash of the generated bundle.
+The shared layout also renders `css-source\jg-ootstrap.css` and `css-source\app.css` inline from embedded resources. Font Awesome remains a separate stylesheet and loads its fonts normally. Changes to the embedded stylesheets require a rebuild.
+
+If a Content Security Policy is configured for the deployed application, it must permit the inline module script and styles, for example using hashes of their generated contents.
 
 ... to be continued
 
