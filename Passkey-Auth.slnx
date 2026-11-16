@@ -1,0 +1,34 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/LdapSchema.md" />
+    <File Path="docs/Passkey-IDP-Flowchart.mmd" />
+    <File Path="docs/Passkey-IDP-Flowchart.svg" />
+    <File Path="docs/PasskeyHandler-Architecture.drawio.svg" />
+    <File Path="docs/PasskeyHandler-SequenceDiagram.png" />
+    <File Path="docs/PasskeyHandler-SequenceDiagram.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/JGUZDV.Passkey.ActiveDirectory/JGUZDV.Passkey.ActiveDirectory.csproj" />
+    <Project Path="src/JGUZDV.PasskeyAuth/JGUZDV.PasskeyAuth.csproj" />
+  </Folder>
+  <Folder Name="/src/ADFS/">
+    <Project Path="src/JGUZDV.ADFS.PasskeyAuthenticationAdapter/JGUZDV.ADFS.PasskeyAuthenticationAdapter.csproj" />
+    <Project Path="src/JGUZDV.ADFS.PasskeyHandler/JGUZDV.ADFS.PasskeyHandler.csproj" />
+  </Folder>
+  <Folder Name="/src/scripts/">
+    <File Path="src/scripts/Update-Metadata.ps1" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/JGUZDV.ClaimMirror/JGUZDV.ClaimMirror.csproj" />
+    <Project Path="test/JGUZDV.PasskeyAuth.TestSP/JGUZDV.PasskeyAuth.TestSP.csproj" />
+  </Folder>
+  <Properties Name="ExtensibilityGlobals" Scope="PostLoad">
+    <Property Name="RESX_NeutralResourcesLanguage" Value="de-DE" />
+    <Property Name="RESX_SortFileContentOnSave" Value="True" />
+  </Properties>
+</Solution>
