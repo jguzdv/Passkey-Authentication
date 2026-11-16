@@ -121,6 +121,12 @@ that'll have it's own webpage and logic, allowing anyone authenticating with a p
 ADFS will use the IDP as ClaimProviderTrust and we're injecting all claims neccessary to make ADFS think it's already been authenticated with multiple factors.
 This tool will work with any other SAML2 SP as well, but the ADFS integration is the most interesting part for us here.
 
+### Building the web application
+
+Install Node.js and npm, then run `npm ci` in `src\JGUZDV.PasskeyAuth` before building or publishing the project. The build type-checks the TypeScript and bundles the page script into the application assembly; the login page renders it inline rather than requesting separate JavaScript files. Run `npm ci` again when `package-lock.json` changes.
+
+If a Content Security Policy is configured for the deployed application, it must permit this inline module script, for example using a hash of the generated bundle.
+
 ... to be continued
 
 ![PKAuth Sequence Diagram](./docs/PasskeyAuth-SequenceDiagram.png)

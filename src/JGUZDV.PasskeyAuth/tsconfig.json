@@ -5,7 +5,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "sourceMap": false,
-    "outDir": "wwwroot/ts/",
+    "noEmit": true,
     "rootDir": "typescript",
     "strict": true,
     "esModuleInterop": true,

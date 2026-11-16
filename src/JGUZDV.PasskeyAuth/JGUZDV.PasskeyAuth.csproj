@@ -37,10 +37,15 @@
   <ItemGroup>
     <ProjectReference Include="..\JGUZDV.Passkey.ActiveDirectory\JGUZDV.Passkey.ActiveDirectory.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\ts\" />
-  </ItemGroup>
 
+  <Target Name="BundlePageScript" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\node_modules\esbuild\bin\esbuild')" Text="esbuild is missing. Run npm ci in $(MSBuildProjectDirectory) before building." />
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Exec Command="node &quot;$(MSBuildProjectDirectory)\node_modules\esbuild\bin\esbuild&quot; &quot;$(MSBuildProjectDirectory)\typescript\Index.ts&quot; --bundle --format=esm --target=es2022 --legal-comments=none --outfile=&quot;$(IntermediateOutputPath)Index.inline.js&quot;" />
+    <ItemGroup>
+      <EmbeddedResource Include="$(IntermediateOutputPath)Index.inline.js" LogicalName="JGUZDV.PasskeyAuth.Index.inline.js" />
+    </ItemGroup>
+  </Target>
 
   <Target Name="UpdateFIDOMetadata" BeforeTargets="PrepareForPublish">
     <Exec Command="pwsh.exe -ExecutionPolicy Bypass -Command &quot;&amp; ../scripts/Update-Metadata.ps1&quot;" />

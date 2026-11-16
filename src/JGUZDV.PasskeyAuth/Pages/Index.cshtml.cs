@@ -5,10 +5,28 @@ namespace JGUZDV.PasskeyAuth.Pages;
 
 public class IndexModel : PageModel
 {
+    private static readonly string InlinePageScript = LoadPageScript();
+
     public void OnGet() { }
+
+    public string PageScript => InlinePageScript;
 
     [BindProperty(SupportsGet = true)]
     public string? ReturnUrl { get; set; }
+
+    private static string LoadPageScript()
+    {
+        using var stream = typeof(IndexModel).Assembly.GetManifestResourceStream("JGUZDV.PasskeyAuth.Index.inline.js")
+            ?? throw new InvalidOperationException("The embedded page script was not found.");
+        using var reader = new StreamReader(stream);
+        var script = reader.ReadToEnd();
+        if (script.Contains("</script", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("The embedded page script contains an unsafe closing script tag.");
+        }
+
+        return script;
+    }
 
 
     /// <summary>
