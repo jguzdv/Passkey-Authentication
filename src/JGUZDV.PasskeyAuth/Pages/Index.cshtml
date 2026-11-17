@@ -4,7 +4,7 @@
 @model JGUZDV.PasskeyAuth.Pages.IndexModel
 
 @{
-    ViewData["clickless"] = Model.ClicklessPasskey ? "true" : "false";
+    ViewData["automaticSignIn"] = Model.HasRedirectUrl ? "true" : "false";
 
     var routeData = new Dictionary<string, string?>
     {
@@ -24,17 +24,23 @@
     <div>
         <status-message class="d-block text-center mt-2" id="status-message" message-key=""></status-message>
     </div>
-    @if (!Model.ClicklessPasskey) {
+    @if (!Model.HasRedirectUrl) {
         @* Tasten zum Triggern von OTP / Info *@
         <div class="action-buttons">
-            <button class="btn btn-dark" passkey-auth><i class="fa fa-fw fa-key"></i> @SL["OTP:InitButton"]</button>
+            <button type="button" class="btn btn-dark" passkey-auth><i class="fa fa-fw fa-key"></i> @SL["OTP:InitButton"]</button>
             <a href="~/Info" class="btn btn-light"><i class="fa fa-fw fa-info-circle"></i> @SL["Info:InitButton"]</a>
+        </div>
+    }
+    else
+    {
+        <div class="action-buttons">
+            <button type="button" class="btn btn-dark" passkey-auth><i class="img"><img src="img/FIDO_Passkey_mark_A_reverse.png" alt="passkeyLogo" class="logo" /></i> @SL["PK:AuthButton"]</button>
         </div>
     }
 </div>
 
 <div class="passkey-incapable">
-    @if (Model.AllowOneTimePassword)
+    @if (Model.HasRedirectUrl)
     {
         <p>@SL["OTP:Manual", $"{Request.Scheme}://{Request.Host}"]</p>
 

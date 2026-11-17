@@ -121,9 +121,19 @@ that'll have it's own webpage and logic, allowing anyone authenticating with a p
 ADFS will use the IDP as ClaimProviderTrust and we're injecting all claims neccessary to make ADFS think it's already been authenticated with multiple factors.
 This tool will work with any other SAML2 SP as well, but the ADFS integration is the most interesting part for us here.
 
+### Automatic passkey prompts
+
+Redirected sign-in pages reuse the server-validated authentication cookie for its configured lifetime. Already-open pages recheck that cookie before requesting a passkey, even in the background. Direct visits without a return URL still require a button click and create a one-time password.
+
+The page must be visible and its window focused before assertion options are requested. A same-origin Web Lock covers the assertion and form submission, preventing concurrent prompts and session challenge overwrites across tabs/windows in the same browser profile. Waiting pages recheck the session after acquiring the lock so a successful login in another window can be reused. There is no separate prompt cooldown or local storage requirement.
+
+Each page automatically prompts at most once; after cancellation, the sign-in button remains available for explicit retries. A different active page may prompt after a cancelled attempt releases the lock. Browsers without Web Locks require a manual click instead of prompting automatically. A cancelled prompt does not mark the browser as passkey-incapable.
+
 ### Building the web application
 
 Install Node.js and npm, then run `npm ci` in `src\JGUZDV.PasskeyAuth` before building or publishing the project. The build type-checks the TypeScript and bundles the page script into the application assembly; the login page renders it inline rather than requesting separate JavaScript files. Run `npm ci` again when `package-lock.json` changes.
+
+Run `npm test` in the same directory for the assertion-flow regression tests. These execute the bundled page script with simulated browser windows and Web Locks; testing real authenticator prompts still requires a browser.
 
 The shared layout also renders `css-source\jg-ootstrap.css` and `css-source\app.css` inline from embedded resources. Font Awesome remains a separate stylesheet and loads its fonts normally. Changes to the embedded stylesheets require a rebuild.
 

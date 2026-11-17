@@ -23,7 +23,7 @@ body {
             max-height: 150px;
             min-height: 50px;
             height: 20dvh;
-            aspect-ratio: 1;
+            object-fit: contain;
         }
     }
 
@@ -49,4 +49,9 @@ body {
     .passkey-capable {
         display: block;
     }
+}
+
+i.img > img {
+    height: 1.5rem;
+    object-fit: contain
 }

@@ -20,11 +20,11 @@
 
         @RenderSection("HeadContent", required: false)
     </head>
-    <body clickless="@ViewData["clickless"]">
+    <body data-automatic-sign-in="@ViewData["automaticSignIn"]">
         <div class="content">
             <div class="imgs">
                 <img src="img/logo_uni-mainz_grey.svg" class="brand" />
-                <img src="img/passkey-logo.svg" alt="passkeyLogo" class="logo" />
+                <img src="img/FIDO_Passkey_mark_A.png" alt="passkeyLogo" class="logo" />
             </div>
             @RenderBody()
         </div>
