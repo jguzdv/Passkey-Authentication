@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@functions {
+    private static readonly string Bootstrap = JGUZDV.PasskeyAuth.InlineResourceLoader.LoadStyle("jg-ootstrap.css");
+    private static readonly string App = JGUZDV.PasskeyAuth.InlineResourceLoader.LoadStyle("app.css");
+}
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
@@ -10,9 +14,9 @@
         <link rel="icon" sizes="16x16 32x32 64x64" href="img/JGU-Quader.ico">
         <link rel="icon" sizes="180x180" href="img/JGU-Quader-180.png">
 
-        <style>@Html.Raw(JGUZDV.PasskeyAuth.InlineStyles.Bootstrap)</style>
+        <style>@Html.Raw(Bootstrap)</style>
         <link href="css/font-awesome/css/all.min.css" rel="stylesheet" />
-        <style>@Html.Raw(JGUZDV.PasskeyAuth.InlineStyles.App)</style>
+        <style>@Html.Raw(App)</style>
 
         @RenderSection("HeadContent", required: false)
     </head>
