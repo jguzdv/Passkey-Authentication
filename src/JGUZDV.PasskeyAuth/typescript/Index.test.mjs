@@ -48,6 +48,7 @@ function createPage(browser, options = {}) {
         prompts: [],
         errors: [],
         warnings: [],
+        debugs: [],
         submitted: 0,
         reloaded: 0,
         response: { value: "" },
@@ -105,8 +106,10 @@ function createPage(browser, options = {}) {
         localStorage: options.storage,
         atob,
         btoa,
+        performance: options.performance ?? { now: () => 0 },
         console: {
             log() {},
+            debug: (...args) => page.debugs.push(args),
             error: (...args) => page.errors.push(args),
             warn: (...args) => page.warnings.push(args)
         }
@@ -253,17 +256,27 @@ test("cancellation prevents further automatic prompts on the same page", async (
     assert.equal(page.requests.length, 2);
 });
 
-test("manual retries remain available after a fast cancellation", async () => {
+test("fast cancellation marks the browser incapable and reports the authentication error", async () => {
     const page = createPage(createBrowser());
     await setImmediate();
     assert.equal(page.prompts.length, 1);
     assert.equal(page.statusAttributes.get("message-key"), "GetAssertionError");
     assert.equal(page.classes.has("d-none"), false);
-    page.click();
+    assert.equal(page.attributes.get("data-passkey-capable"), "false");
+    assert.equal(page.debugs.length, 1);
+});
+
+test("slow cancellation leaves passkey capability enabled", async () => {
+    let now = 0;
+    const page = createPage(createBrowser(), {
+        credential: async () => { throw new Error("Cancelled"); },
+        performance: { now: () => (now += 501) }
+    });
     await setImmediate();
-    assert.equal(page.prompts.length, 2);
-    assert.equal(page.classes.has("d-none"), false);
+    assert.equal(page.prompts.length, 1);
+    assert.equal(page.statusAttributes.get("message-key"), "GetAssertionError");
     assert.equal(page.attributes.get("data-passkey-capable"), "true");
+    assert.equal(page.debugs.length, 0);
 });
 
 test("direct OTP visits never prompt automatically or reuse the sign-in session", async () => {
