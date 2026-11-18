@@ -145,6 +145,9 @@ Kopieren Sie das erzeugte Einmalpasswort hier ein, um sich für diese Anwendung 
   <data name="Passkey:NotFound" xml:space="preserve">
     <value>Der verwendete Passkey konnte nicht gefunden werden. Prüfen Sie, ob Sie den Passkey bereits registriert haben.</value>
   </data>
+  <data name="PK:AuthButton" xml:space="preserve">
+    <value>Mit Passkey anmelden</value>
+  </data>
   <data name="PK:NotPossible" xml:space="preserve">
     <value>Dieser Browser unterstützt &lt;b&gt;keine&lt;/b&gt; Anmeldung per Passkey.&lt;br /&gt;Bitte verwenden Sie einen anderen Browser.</value>
   </data>

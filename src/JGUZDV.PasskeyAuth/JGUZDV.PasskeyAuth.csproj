@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- TODO due to a bug somewhere in Azure, we need to have net9.0 instead of net9.0-windows, when Caching.SqlServer is used -->
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
 
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -15,33 +15,41 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.0.0" />
-    <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.5.25" />
-    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="9.0.8" />
+    <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.1.0" />
+    <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.10.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.15" />
 
-    <PackageReference Include="System.DirectoryServices" Version="9.0.8" />
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+    <PackageReference Include="System.DirectoryServices" Version="10.0.15" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
 
-    <PackageReference Include="Fido2.AspNet" Version="4.0.0" />
-    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.16.1" />
-    <PackageReference Include="JGUZDV.AspNetCore.DataProtection" Version="2.0.1" />
-    <PackageReference Include="JGUZDV.AspNetCore.Logging" Version="1.2.14" />
+    <PackageReference Include="Fido2.AspNet" Version="4.3.3" />
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.22.2" />
+    <PackageReference Include="JGUZDV.AspNetCore.DataProtection" Version="2.1.0" />
   </ItemGroup>
 
   <!-- Build Typescript on build -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.2">
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="7.0.1">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; native; contentfiles; analyzers;</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JGUZDV.Passkey.ActiveDirectory\JGUZDV.Passkey.ActiveDirectory.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\ts\" />
+    <Content Remove="css-source\*.css" />
+    <EmbeddedResource Include="css-source\*.css" LogicalName="JGUZDV.PasskeyAuth.css-source.%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <Target Name="BundlePageScript" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\node_modules\esbuild\bin\esbuild')" Text="esbuild is missing. Run npm ci in $(MSBuildProjectDirectory) before building." />
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Exec Command="node &quot;$(MSBuildProjectDirectory)\node_modules\esbuild\bin\esbuild&quot; &quot;$(MSBuildProjectDirectory)\typescript\Index.ts&quot; --bundle --format=esm --target=es2022 --legal-comments=none --outfile=&quot;$(IntermediateOutputPath)Index.inline.js&quot;" />
+    <ItemGroup>
+      <EmbeddedResource Include="$(IntermediateOutputPath)Index.inline.js" LogicalName="JGUZDV.PasskeyAuth.Index.inline.js" />
+    </ItemGroup>
+  </Target>
 
   <Target Name="UpdateFIDOMetadata" BeforeTargets="PrepareForPublish">
     <Exec Command="pwsh.exe -ExecutionPolicy Bypass -Command &quot;&amp; ../scripts/Update-Metadata.ps1&quot;" />

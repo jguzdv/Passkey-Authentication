@@ -144,6 +144,9 @@ Copy the one time password here to login to the application.</value>
   <data name="Passkey:NotFound" xml:space="preserve">
     <value>The used passkey could not be found. Please make sure, the passkey in use has been registered.</value>
   </data>
+  <data name="PK:AuthButton" xml:space="preserve">
+    <value>Sign in with a passkey</value>
+  </data>
   <data name="PK:NotPossible" xml:space="preserve">
     <value>The usage of a passkey is not possible in this browser.&lt;br /&gt;Please use another browser.</value>
   </data>

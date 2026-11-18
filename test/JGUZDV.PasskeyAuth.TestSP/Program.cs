@@ -1,6 +1,9 @@
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
+using ITfoxtec.Identity.Saml2.Schemas;
 using ITfoxtec.Identity.Saml2.Schemas.Metadata;
+
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +22,8 @@ services.ConfigureOptions<IDPMetadataConfiguration>();
 services.AddSaml2(
     loginPath: "/saml2/login"
     );
+
+services.PostConfigure<CookieAuthenticationOptions>(Saml2Constants.AuthenticationScheme, o => o.ExpireTimeSpan = TimeSpan.FromMinutes(2));
 
 services.AddHostedService<IDPMetadataLoader>();
 
@@ -72,6 +77,8 @@ public class IDPMetadataLoader : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        // We wait two seconds before loading the metadata to ensure the server is running.
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
         await _idpDescriptor.ReadIdPSsoDescriptorFromUrlAsync(_httpClientFactory, new Uri(_configuration["Saml2:IdPMetadataUrl"]!));
 
         _timer = new Timer((ctx) => _ = LoadIdpMetadata(), null, TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(60));
