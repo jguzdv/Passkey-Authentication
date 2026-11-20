@@ -11,10 +11,10 @@
 
     <NoWarn>CA1416</NoWarn>
     <NeutralLanguage>de</NeutralLanguage>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- Our own environment uses CPM and we're including this project as git submodule , so we've got the independent build without submodules and the CI build, that might use submodules. -->
+  <ItemGroup Condition="$('ManagePackageVersionsCentrally') != 'true'">
     <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.1.0" />
     <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.10.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.15" />
@@ -27,6 +27,19 @@
     <PackageReference Include="JGUZDV.AspNetCore.DataProtection" Version="2.1.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="$('ManagePackageVersionsCentrally') == 'true'">
+    <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" />
+    <PackageReference Include="JGUZDV.AspNetCore.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" />
+
+    <PackageReference Include="System.DirectoryServices" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+
+    <PackageReference Include="Fido2.AspNet" />
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" />
+    <PackageReference Include="JGUZDV.AspNetCore.DataProtection" />
+  </ItemGroup>
+
   <!-- Build Typescript on build -->
   <ItemGroup>
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="7.0.1">
@@ -34,9 +47,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\JGUZDV.Passkey.ActiveDirectory\JGUZDV.Passkey.ActiveDirectory.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <Content Remove="css-source\*.css" />
     <EmbeddedResource Include="css-source\*.css" LogicalName="JGUZDV.PasskeyAuth.css-source.%(Filename)%(Extension)" />
