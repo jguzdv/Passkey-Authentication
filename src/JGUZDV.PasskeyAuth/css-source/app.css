@@ -1,7 +1,6 @@
 body {
     min-height: 100dvh;
     display: grid;
-
     place-content: center;
 }
 
@@ -9,47 +8,48 @@ body {
     max-width: 400px;
     width: 100%;
     padding-inline: 0.5rem;
+}
 
-    .imgs {
+    .content .imgs {
         display: flex;
         flex-direction: column;
         margin-bottom: 1rem;
-
-        .brand {
-            width: 100%;
-        }
-
-        .logo {
-            max-height: 150px;
-            min-height: 50px;
-            height: 20dvh;
-            object-fit: contain;
-        }
     }
 
-    .action-buttons {
+        .content .imgs .brand {
+            width: 100%;
+            max-height: 90px;
+            object-fit: contain;
+        }
+
+        .content .imgs .logo {
+            height: 150px;
+            object-fit: contain;
+        }
+
+
+    .content .action-buttons {
         display: flex;
         flex-direction: column;
         row-gap: 0.5rem;
     }
-}
 
-.passkey-capable, .passkey-incapable {
+.passkey-capable {
     display: none;
 }
 
-[data-passkey-capable="false"] {
-    .passkey-incapable {
-        display: block;
-    }
+.passkey-incapable {
+    display: block;
 }
 
-
-[data-passkey-capable="true"] {
-    .passkey-capable {
-        display: block;
-    }
+[data-passkey-capable="true"] .passkey-capable {
+    display: block;
 }
+
+[data-passkey-capable="true"] .passkey-incapable {
+    display: none;
+}
+
 
 i.img > img {
     height: 1.5rem;
