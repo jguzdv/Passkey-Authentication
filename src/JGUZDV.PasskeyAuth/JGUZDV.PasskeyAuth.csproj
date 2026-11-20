@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <!-- Our own environment uses CPM and we're including this project as git submodule , so we've got the independent build without submodules and the CI build, that might use submodules. -->
-  <ItemGroup Condition="$('ManagePackageVersionsCentrally') != 'true'">
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
     <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" Version="1.1.0" />
     <PackageReference Include="JGUZDV.AspNetCore.Hosting" Version="1.10.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.15" />
@@ -25,9 +25,14 @@
     <PackageReference Include="Fido2.AspNet" Version="4.3.3" />
     <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.22.2" />
     <PackageReference Include="JGUZDV.AspNetCore.DataProtection" Version="2.1.0" />
+
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="7.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="$('ManagePackageVersionsCentrally') == 'true'">
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
     <PackageReference Include="JGUZDV.AspNetCore.Authentication.Cookies" />
     <PackageReference Include="JGUZDV.AspNetCore.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" />
@@ -38,11 +43,8 @@
     <PackageReference Include="Fido2.AspNet" />
     <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" />
     <PackageReference Include="JGUZDV.AspNetCore.DataProtection" />
-  </ItemGroup>
 
-  <!-- Build Typescript on build -->
-  <ItemGroup>
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="7.0.1">
+    <PackageReference Include="Microsoft.TypeScript.MSBuild">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

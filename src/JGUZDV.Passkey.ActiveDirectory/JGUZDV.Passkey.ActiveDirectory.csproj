@@ -6,10 +6,9 @@
 		<Nullable>enable</Nullable>
 
 		<NoWarn>MSB3305</NoWarn>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 
-	<ItemGroup>
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
 		<PackageReference Include="JGUZDV.ActiveDirectory" Version="1.5.0" />
 		<PackageReference Include="JGUZDV.ActiveDirectory.COM" Version="1.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
@@ -17,6 +16,16 @@
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.15" />
 		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.15" />
 		<PackageReference Include="System.DirectoryServices" Version="10.0.15" />
+	</ItemGroup>
+  
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+		<PackageReference Include="JGUZDV.ActiveDirectory" />
+		<PackageReference Include="JGUZDV.ActiveDirectory.COM" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Options" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+		<PackageReference Include="System.DirectoryServices" />
 	</ItemGroup>
 
 </Project>

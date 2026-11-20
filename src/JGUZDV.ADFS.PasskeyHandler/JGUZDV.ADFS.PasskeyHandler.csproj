@@ -14,9 +14,14 @@
 		<UserSecretsId>af68a053-bc62-4adf-a402-5fc0743b5d25</UserSecretsId>
 	</PropertyGroup>
 
-	<ItemGroup>
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
 		<PackageReference Include="Fido2.AspNet" Version="4.3.3" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.15" />
+	</ItemGroup>
+  
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+		<PackageReference Include="Fido2.AspNet" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -6,8 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
     <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.22.2" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" />
   </ItemGroup>
 
 </Project>
