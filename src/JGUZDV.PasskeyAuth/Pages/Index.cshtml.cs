@@ -7,8 +7,6 @@ namespace JGUZDV.PasskeyAuth.Pages;
 
 public class IndexModel : PageModel
 {
-    private static readonly string InlinePageScript = InlineResourceLoader.LoadScript("Index.inline.js");
-
     public IActionResult OnGet()
     {
         SetCacheControl();
@@ -33,10 +31,11 @@ public class IndexModel : PageModel
 
     private void SetCacheControl()
     {
-        Response.Headers.CacheControl = "no-store";
+        Response.Headers.CacheControl = "no-cache, no-store";
+        Response.Headers.Pragma = "no-cache";
     }
 
-    public string PageScript => InlinePageScript;
+    public string PageScript { get; } = InlineResourceLoader.LoadScript("Index.inline.js");
 
     [BindProperty(SupportsGet = true)]
     public string? ReturnUrl { get; set; }
